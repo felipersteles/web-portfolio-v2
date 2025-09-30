@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* You can keep or re-add base styles below as needed. Tailwind's preflight resets are applied above. */
+
+@theme {
+  /* Colors - Blue and Green Sea & Island Theme */
+  --color-body: #F0F8FF; /* Alice Blue - light sea background */
+  --color-text: #2C5530; /* Dark Green - earthy text color */
+  --color-primary: #4F7942; /* Fern Green - island vegetation */
+
+  /* Additional sea-themed colors */
+  --color-secondary: #4682B4; /* Steel Blue - ocean color */
+  --color-accent: #20B2AA; /* Light Sea Green - accent color */
+
+  /* Font family */
+  --font-sans: "Source Sans Pro", sans-serif;
+
+  /* Breakpoints (em) */
+  --breakpoint-sm: 20em;
+  --breakpoint-md: 30em;
+  --breakpoint-lg: 45em;
+  --breakpoint-xl: 60em;
+  --breakpoint-xxl: 75em;
+}
+
+/* Dark theme overrides - Deep ocean theme */
+.dark {
+  --color-body: #0A2342; /* Dark Sapphire - deep ocean at night */
+  --color-text: #E8F4F8; /* Light Cyan - moonlight text */
+  --color-primary: #2A9D8F; /* Persian Green - glowing sea life */
+  --color-secondary: #1D3557; /* Prussian Blue - deeper ocean */
+  --color-accent: #A8DADC; /* Powder Blue - sea foam */
+}
+
+@layer base {
+  body {
+    background-color: var(--color-body);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    margin: 0;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+}
+
+@keyframes scalePulse {
+  0% { transform: scale(1.5); }
+  50% { transform: scale(2); }
+  100% { transform: scale(1.5); }
+}
+
+/* Optional: Add some sea-themed utility classes */
+@layer utilities {
+  .bg-sea-gradient {
+    background: linear-gradient(145deg, var(--color-secondary), var(--color-body));
+  }
+  
+  .bg-island-gradient {
+    background: linear-gradient(145deg, var(--color-primary), var(--color-accent));
+  }
+  
+  .text-sea-foam {
+    color: var(--color-accent);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease forwards;
+}
+
+.animate-fade-in.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animate-fade-in.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animate-fade-in.delay-600 {
+  animation-delay: 0.6s;
+}
