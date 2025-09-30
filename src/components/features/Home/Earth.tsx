@@ -4,9 +4,14 @@ import { useEffect, useRef } from "react";
 const earthUrl = new URL("../../../assets/models/earth.gltf", import.meta.url)
     .href;
 
-const Earth = () => {
+interface EarthProps {
+    onLoad?: () => void; // Add loading callback
+}
+
+const Earth = ({ onLoad }: EarthProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const hasLoadedRef = useRef(false); // Prevent multiple load calls
 
     useEffect(() => {
         let renderer: any = null;
@@ -15,6 +20,14 @@ const Earth = () => {
         let animationId: number | null = null;
         let model: any = null;
         let pivot: any = null; // parent group that we rotate
+
+        const handleLoadComplete = () => {
+            // Only call onLoad once
+            if (!hasLoadedRef.current && onLoad) {
+                hasLoadedRef.current = true;
+                onLoad();
+            }
+        };
 
         const init = async () => {
             const [three, loaders, draco] = await Promise.all([
@@ -37,6 +50,9 @@ const Earth = () => {
                 Group,
                 Box3,
                 Vector3,
+                BoxGeometry,
+                MeshStandardMaterial,
+                Mesh,
             } = three;
             const { GLTFLoader } = loaders;
             const { DRACOLoader } = draco;
@@ -112,8 +128,29 @@ const Earth = () => {
                 pivot = new Group();
                 pivot.add(model);
                 scene.add(pivot);
+
+                // Call load complete after successful model load
+                handleLoadComplete();
             } catch (e) {
                 console.error("Failed to load Earth GLTF:", e);
+                
+                // Fallback Earth - simple sphere
+                const geometry = new BoxGeometry(1, 1, 1);
+                const material = new MeshStandardMaterial({
+                    color: 0x1e90ff,
+                    metalness: 0.3,
+                    roughness: 0.7,
+                });
+                model = new Mesh(geometry, material);
+                
+                pivot = new Group();
+                pivot.add(model);
+                scene.add(pivot);
+                
+                console.log("Fallback Earth added");
+                
+                // Also call load complete for fallback
+                handleLoadComplete();
             }
 
             // Manual drag-to-rotate behavior (rotate model only)
@@ -171,7 +208,8 @@ const Earth = () => {
             window.addEventListener("resize", onResize);
 
             const tick = () => {
-                if (pivot) {
+                if (pivot && !isDragging) {
+                    // Only auto-rotate when not dragging
                     pivot.rotation.y += 0.01;
                 }
                 renderer!.render(scene!, camera!);
@@ -207,7 +245,7 @@ const Earth = () => {
 
         init();
         return cleanup;
-    }, []);
+    }, [onLoad]); // Add onLoad to dependencies
 
     return (
         <div ref={containerRef} className="h-full w-full relative">

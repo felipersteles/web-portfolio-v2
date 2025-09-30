@@ -3,11 +3,13 @@ import { useEffect, useRef } from "react";
 
 interface ShipProps {
     presentationIsOpen: boolean;
+    onLoad?: () => void; // Add loading callback
 }
 
-const Ship = ({ presentationIsOpen }: ShipProps) => {
+const Ship = ({ presentationIsOpen, onLoad }: ShipProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const hasLoadedRef = useRef(false); // Prevent multiple load calls
 
     useEffect(() => {
         let renderer: any = null;
@@ -108,12 +110,23 @@ const Ship = ({ presentationIsOpen }: ShipProps) => {
                 import.meta.url
             ).href;
 
+            const handleLoadComplete = () => {
+                // Only call onLoad once
+                if (!hasLoadedRef.current && onLoad) {
+                    hasLoadedRef.current = true;
+                    onLoad();
+                }
+            };
+
             try {
                 const gltf = await loader.loadAsync(shipUrl);
                 model = gltf.scene;
                 model.position.set(-3.0, 0.1, 0);
                 model.scale.set(0.5, 0.5, 0.5);
                 scene.add(model);
+                
+                // Call load complete after successful model load
+                handleLoadComplete();
             } catch (e) {
                 console.error("Failed to load GLTF:", e);
 
@@ -129,6 +142,9 @@ const Ship = ({ presentationIsOpen }: ShipProps) => {
                 scene.add(model);
 
                 console.log("Fallback ship added");
+                
+                // Also call load complete for fallback
+                handleLoadComplete();
             }
 
             const onResize = () => {
@@ -272,7 +288,7 @@ const Ship = ({ presentationIsOpen }: ShipProps) => {
 
         init();
         return cleanup;
-    }, [presentationIsOpen]);
+    }, [presentationIsOpen, onLoad]); // Add onLoad to dependencies
 
     return (
         <div

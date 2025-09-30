@@ -6,18 +6,37 @@ import Earth from "../../components/features/Home/Earth";
 import LogoComponent from "../../components/shared/Logo";
 import { Presentation } from "../../components/features/Home/Presentation";
 import SocialIcons from "../../components/shared/SocialIcons";
+import Loading from "../../components/shared/Loading";
 
 const HomePage = () => {
     const [openPresentation, setOpenPresentation] = useState<boolean>(false);
     const [mobile, setMobile] = useState<boolean>(false);
     const [path, setPath] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(true); // Começa como true
+    const [loadingProgress, setLoadingProgress] = useState(0);
 
     useEffect(() => {
         const mq = window.matchMedia("(max-width: 50em)");
         setMobile(mq.matches);
         const listener = (e: MediaQueryListEvent) => setMobile(e.matches);
         mq.addEventListener("change", listener);
-        return () => mq.removeEventListener("change", listener);
+
+        // Simular progresso de carregamento
+        const progressInterval = setInterval(() => {
+            setLoadingProgress((prev) => {
+                if (prev >= 100) {
+                    clearInterval(progressInterval);
+                    setIsLoading(false);
+                    return 100;
+                }
+                return prev + 10;
+            });
+        }, 200); // Atualiza a cada 200ms
+
+        return () => {
+            mq.removeEventListener("change", listener);
+            clearInterval(progressInterval);
+        };
     }, []);
 
     const exitTransform = useMemo(() => {
@@ -28,6 +47,11 @@ const HomePage = () => {
     const onClickPowerButton = () => {
         if (openPresentation) setOpenPresentation(false);
     };
+
+    // Mostrar loading enquanto os componentes não estão prontos
+    if (isLoading) {
+        return <Loading progress={loadingProgress} />;
+    }
 
     return (
         <>
@@ -86,7 +110,7 @@ const HomePage = () => {
 
                     {!openPresentation && (
                         <span className="mt-4 font-semibold text-center">
-                            Click in the Earth!
+                            Click the Earth!
                         </span>
                     )}
                 </button>
