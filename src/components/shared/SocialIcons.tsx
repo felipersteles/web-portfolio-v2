@@ -3,12 +3,10 @@ import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter } from "../../assets/icons";
 
 interface SocialIconsProps {
-    presentationOpen: boolean;
+    storm: boolean;
 }
 
-const SocialIcons = ({
-    presentationOpen,
-}: SocialIconsProps): React.ReactNode => {
+const SocialIcons = ({ storm }: SocialIconsProps): React.ReactNode => {
     const [mq, setMq] = useState(false);
 
     useEffect(() => {
@@ -39,7 +37,7 @@ const SocialIcons = ({
     return (
         <div
             className={`fixed bottom-0 left-8 z-[9999] flex flex-col items-center sm:left-4 transition-all duration-700 ${
-                presentationOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+                storm ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
         >
             {icons.map(({ href, Icon }, index) => (
@@ -66,7 +64,7 @@ const SocialIcons = ({
                 className="w-[2px] mt-2 bg-white transition-all duration-700"
                 animate={{
                     height: mq ? "4rem" : "6rem",
-                    opacity: presentationOpen ? 0 : 1,
+                    opacity: storm ? 0 : 1,
                 }}
             />
         </div>
