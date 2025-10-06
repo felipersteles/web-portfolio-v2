@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useMainStore } from "../../store";
+import { useMainStore } from "../../../store";
 
 interface RedirectButtonProps {
     icon?: React.ReactNode;
@@ -10,6 +10,7 @@ interface RedirectButtonProps {
     textColor?: string;
     hoverTextColor?: string;
     delay?: number; // Delay before actual navigation
+    isOut?: boolean;
 }
 
 const RedirectButton: React.FC<RedirectButtonProps> = ({
@@ -19,6 +20,7 @@ const RedirectButton: React.FC<RedirectButtonProps> = ({
     className = "",
     textColor = "text-white",
     hoverTextColor = "text-black",
+    isOut = false,
     delay = 3000, // Default 3 seconds delay for animation
 }) => {
     const navigate = useNavigate();
@@ -34,7 +36,14 @@ const RedirectButton: React.FC<RedirectButtonProps> = ({
         // Navigate after animation completes
         setTimeout(() => {
             fnOnChange("isRedirecting", false);
-            navigate(path);
+
+            if (isOut) {
+                // Open in a new tab/window
+                window.open(path, "_blank", "noopener,noreferrer");
+            } else {
+                // Internal navigation
+                navigate(path);
+            }
         }, delay);
     };
 

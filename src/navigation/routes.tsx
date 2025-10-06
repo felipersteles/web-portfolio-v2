@@ -2,7 +2,9 @@ import HomePage from "../pages/Home/index.tsx";
 import AboutPage from "../pages/About/index.tsx";
 import ProjectsPage from "../pages/Projects/index.tsx";
 import Loading from "../components/shared/Loading";
-import { Book, BookOpen, Folder, Home, Sparkles } from "lucide-react";
+import { Book, BookOpen, FlaskConical, Folder, Home, Phone, Sparkles } from "lucide-react";
+import PapersPage from "../pages/Papers/index.tsx";
+import ContactPage from "../pages/Contact/index.tsx";
 
 export const routes = {
     main: {
@@ -35,4 +37,16 @@ export const routes = {
         path: "https://blog.felipeteles.com",
         element: <HomePage />,
     },
+    publications: {
+        icon: FlaskConical,
+        name: "My Papers",
+        path: "/papers",
+        element: <PapersPage />,
+    },
+    contact: {
+        icon: Phone,
+        name: "Contact Me",
+        path: "/contact",
+        element: <ContactPage />,
+    }
 };

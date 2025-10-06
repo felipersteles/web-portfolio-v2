@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 
-const earthUrl = new URL("../../../assets/models/earth.gltf", import.meta.url)
+const earthUrl = new URL("../../../assets/models/statue.gltf", import.meta.url)
     .href;
 
 interface EarthProps {
     onLoad?: () => void;
 }
 
-const Earth = ({ onLoad }: EarthProps) => {
+const Potion = ({ onLoad }: EarthProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const hasLoadedRef = useRef(false); // Prevent multiple load calls
@@ -80,7 +80,7 @@ const Earth = ({ onLoad }: EarthProps) => {
 
             // Positioning to control the size in the main page
             camera = new PerspectiveCamera(40, width / height, 0.01, 1000);
-            camera.position.set(0, 0, 4.5);
+            camera.position.set(0, 0, 7);
             camera.lookAt(0, 0, 0);
 
             // Main sunlight (sun direction)
@@ -248,4 +248,4 @@ const Earth = ({ onLoad }: EarthProps) => {
     );
 };
 
-export default Earth;
+export default Potion;

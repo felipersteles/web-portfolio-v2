@@ -1,20 +1,14 @@
 import { useState } from "react";
-import PowerButton from "../../components/shared/PowerButton";
+import { motion } from "framer-motion";
 import Earth from "../../components/features/Home/Earth";
-import LogoComponent from "../../components/shared/Logo";
 import { Presentation } from "../../components/features/Home/Presentation";
 import { useMainStore } from "../../store";
-import RedirectButton from "./RedirectButton";
+import RedirectButton from "../../components/features/Home/RedirectButton";
 import { routes } from "../../navigation/routes";
 
 const HomePage = () => {
     const [openPresentation, setOpenPresentation] = useState<boolean>(false);
-
     const { fnOnChange } = useMainStore();
-
-    const onClickPowerButton = () => {
-        if (openPresentation) setOpenPresentation(false);
-    };
 
     const togglePresentation = () => {
         const toggleOpen = !openPresentation;
@@ -23,18 +17,14 @@ const HomePage = () => {
     };
 
     return (
-        <>
-            <div
-                className={`pointer-events-none absolute left-0 right-0 top-0 z-10 flex items-center justify-between p-8 transition-all duration-700 ${
-                    openPresentation ? "opacity-0" : "opacity-100"
-                }`}
-            >
-                <PowerButton onClick={onClickPowerButton} />
-
-                <LogoComponent theme="dark" />
-            </div>
-
-            {/* Dark part overlay - REDUCED Z-INDEX */}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="relative w-full h-full"
+        >
+            {/* Dark part overlay */}
             <div
                 className={`pointer-events-none absolute bottom-0 right-1/2 top-0 z-10 bg-black transition-all duration-700 ease-in-out sm:right-0 ${
                     openPresentation
@@ -43,7 +33,7 @@ const HomePage = () => {
                 }`}
             ></div>
 
-            {/* Center icon button - FIXED POSITIONING */}
+            {/* Center icon button */}
             <button
                 onClick={togglePresentation}
                 className={`absolute z-20 flex transform flex-col items-center justify-center transition-all duration-700 ${
@@ -68,24 +58,24 @@ const HomePage = () => {
                 )}
             </button>
 
-            {/* Right side - Redirect Button */}
+            {/* Right side redirect */}
             <div
-                className={`absolute -right-14 top-1/2 z-20 -translate-y-1/2 rotate-90 transition-all duration-700 ${
+                className={`absolute -right-6 top-1/2 z-20 -translate-y-1/2 rotate-90 transition-all duration-700 ${
                     openPresentation
                         ? "opacity-0 pointer-events-none"
                         : "opacity-100"
                 }`}
             >
                 <RedirectButton
-                    text={routes.projects.name}
-                    path={routes.projects.path}
-                    className="border-purple-400 hover:border-purple-300"
-                    textColor="text-purple-300"
+                    text={routes.publications.name}
+                    path={routes.publications.path}
+                    className="border-purple-600 hover:border-purple-300"
+                    textColor="text-purple-800"
                     hoverTextColor="text-purple-800"
                 />
             </div>
 
-            {/* Left side - Redirect Button */}
+            {/* Left side redirect */}
             <div
                 className={`absolute left-8 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 -rotate-90 transition-all duration-700 ${
                     openPresentation
@@ -102,7 +92,7 @@ const HomePage = () => {
                 />
             </div>
 
-            {/* Bottom bar - Two Redirect Buttons */}
+            {/* Bottom bar redirects */}
             <div
                 className={`absolute bottom-8 left-0 right-0 z-20 flex w-full justify-evenly transition-all duration-700 ${
                     openPresentation
@@ -120,6 +110,7 @@ const HomePage = () => {
                 <RedirectButton
                     text={routes.blog.name}
                     path={routes.blog.path}
+                    isOut
                     className="border-yellow-400 hover:border-yellow-300"
                     textColor="text-yellow-300"
                     hoverTextColor="text-yellow-800"
@@ -128,7 +119,7 @@ const HomePage = () => {
 
             {/* Presentation overlay */}
             {openPresentation && <Presentation onClose={togglePresentation} />}
-        </>
+        </motion.div>
     );
 };
 

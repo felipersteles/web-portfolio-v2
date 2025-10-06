@@ -1,13 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 
-interface ShipProps {
+interface ShipAndOceanProps {
     storm: boolean;
     isRedirecting: boolean;
     onLoad?: () => void;
 }
 
-const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
+const models = {
+    ship: "../../assets/models/ship.gltf",
+    tree: "../../assets/models/tree.gltf",
+    chest: "../../assets/models/chest.gltf",
+    wizard: "../../assets/models/wizard.gltf",
+};
+
+const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const hasLoadedRef = useRef(false);
@@ -29,11 +36,12 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
         let animationId: number | null = null;
         let model: any = null;
         let ocean: any = null;
-        let time = 0;
         let mixer: any = null;
         let wizard: any = null;
         const wizardAnimations: any = {};
         let currentAnimation: any = null;
+        let resizeObserver: ResizeObserver | null = null;
+        let time = 0;
 
         const init = async () => {
             const [three, loaders, draco] = await Promise.all([
@@ -58,9 +66,7 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
                 CylinderGeometry,
             } = three;
 
-            // Get AnimationMixer from three - it might be a named export
             const AnimationMixer = three.AnimationMixer;
-
             const { GLTFLoader } = loaders;
             const { DRACOLoader } = draco;
 
@@ -82,10 +88,17 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
             renderer.setClearColor(0x000000, 0);
 
             scene = new Scene();
-            camera = new PerspectiveCamera(45, width / height, 0.1, 100);
-            camera.position.set(0, 3, 6);
 
-            // Lights
+            // === Camera ===
+            const isMobile = window.innerWidth < 768;
+            const isTablet =
+                window.innerWidth >= 768 && window.innerWidth < 1024;
+            const cameraDistance = isMobile ? 9 : isTablet ? 7 : 6;
+
+            camera = new PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(0, 3, cameraDistance);
+
+            // === Lights ===
             const ambient = new AmbientLight(0xffffff, 0.7);
             scene.add(ambient);
 
@@ -93,7 +106,7 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
             dir.position.set(5, 10, 7);
             scene.add(dir);
 
-            // Ocean
+            // === Ocean ===
             const oceanGeometry = new PlaneGeometry(100, 15, 100, 100);
             const oceanMaterial = new MeshPhongMaterial({
                 color: 0x1e90ff,
@@ -103,157 +116,105 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
                 specular: 0x222222,
                 side: three.DoubleSide,
             });
-
             ocean = new Mesh(oceanGeometry, oceanMaterial);
             ocean.rotation.x = -Math.PI / 2;
             ocean.position.y = -0.5;
-
-            const pos = ocean.geometry.attributes.position;
-            ocean.userData.original = new Float32Array(pos.array);
+            ocean.userData.original = new Float32Array(
+                ocean.geometry.attributes.position.array
+            );
             scene.add(ocean);
 
-            // === 📦 DRACO Loader ===
+            // === Draco Loader ===
             const dracoLoader = new DRACOLoader();
             dracoLoader.setDecoderPath(
                 "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
             );
 
-            // === 🏝️ Ilha simples ===
+            // === Island ===
             const islandGeometry = new CylinderGeometry(1.2, 3.5, 0.4, 32);
             const islandMaterial = new MeshStandardMaterial({
                 color: 0xdeb887,
             });
             const island = new Mesh(islandGeometry, islandMaterial);
-            island.position.set(-8, -0.5, -9);
+
+            if (isMobile) {
+                island.position.set(-2, -0.5, -9);
+            } else {
+                island.position.set(-8, -0.5, -9);
+            }
             scene.add(island);
 
-            // === 🌳 Árvores ===
+            // === Tree ===
             const treeLoader = new GLTFLoader();
-            const treeUrl = new URL(
-                "../../../assets/models/tree.gltf",
-                import.meta.url
-            ).href;
-
+            const treeUrl = new URL(models.tree, import.meta.url).href;
             try {
                 const treeModel = await treeLoader.loadAsync(treeUrl);
                 const tree1 = treeModel.scene.clone();
-
                 tree1.scale.set(0.5, 0.5, 0.5);
-
-                tree1.position.set(-9.4, -0.3, -9.3);
-
-                scene.add(tree1);
+                tree1.position.set(-1.5, 0.3, -0.3);
+                island.add(tree1);
             } catch (e) {
                 console.warn("Tree model not found:", e);
             }
 
-            // === 🗿 Ruins ===
+            // === Chest / Ruins ===
             const ruinsLoader = new GLTFLoader();
             ruinsLoader.setDRACOLoader(dracoLoader);
-            const ruinsUrl = new URL(
-                "../../../assets/models/chest.gltf",
-                import.meta.url
-            ).href;
-
+            const ruinsUrl = new URL(models.chest, import.meta.url).href;
             try {
                 const ruinsModel = await ruinsLoader.loadAsync(ruinsUrl);
                 const ruins = ruinsModel.scene.clone();
-                ruins.position.set(0, 0, 0);
-                ruins.rotation.set(0, 0, 0);
-                ruins.scale.set(1, 1, 1);
                 ruins.position.set(0, 0.2, 0);
+                ruins.scale.set(1, 1, 1);
                 island.add(ruins);
-                console.log("Ruins added", ruins);
             } catch (e) {
                 console.warn("Ruins model not found:", e);
             }
 
-            // === 🧙‍♂️ Mago ===
+            // === Wizard ===
             const wizardLoader = new GLTFLoader();
-            const wizardUrl = new URL(
-                "../../../assets/models/wizard.gltf",
-                import.meta.url
-            ).href;
-
-            // Function to play wizard animations
-            const playWizardAnimation = (animationName: string) => {
-                if (!mixer) {
-                    console.warn("No animation mixer available");
-                    return;
-                }
-
-                if (currentAnimation) {
-                    currentAnimation.stop();
-                    console.log(`Stopped previous animation: ${currentAnimation.getClip?.()?.name}`);
-                }
-
-                const action = wizardAnimations[animationName];
+            const wizardUrl = new URL(models.wizard, import.meta.url).href;
+            const playWizardAnimation = (name: string) => {
+                if (!mixer) return;
+                if (currentAnimation) currentAnimation.stop();
+                const action = wizardAnimations[name];
                 if (action) {
-                    action.reset();
-                    action.play();
+                    action.reset().play();
                     currentAnimation = action;
-                    console.log(`Playing wizard animation: ${animationName}`);
-                } else {
-                    console.warn(`Animation "${animationName}" not found. Available animations:`, Object.keys(wizardAnimations));
                 }
             };
-
 
             try {
                 const wizardModel = await wizardLoader.loadAsync(wizardUrl);
                 wizard = wizardModel.scene;
                 wizard.scale.set(1, 1, 1);
-                wizard.position.set(-5, -0.3, -9);
+                wizard.position.set(2.4, 0.3, 1.3);
                 wizard.rotation.y = Math.PI / 9;
-                scene.add(wizard);
+                island.add(wizard);
 
-                console.log("Wizard model loaded, animations:", wizardModel.animations);
-
-                // Set up animation mixer for wizard
-                if (AnimationMixer) {
-                    mixer = new AnimationMixer(wizard);
-                    console.log("Animation mixer created");
-
-                    // Store all animations
-                    if (wizardModel.animations && wizardModel.animations.length > 0) {
-                        wizardModel.animations.forEach((clip: any) => {
-                            const action = mixer.clipAction(clip);
-                            wizardAnimations[clip.name] = action;
-                            console.log(`Loaded animation: ${clip.name}`, action);
-                        });
-
-                        // Set initial animation based on redirecting state
-                        if (isRedirectingRef.current) {
-                            playWizardAnimation("PortalOpen");
-                        } else {
-                            playWizardAnimation("Waiting");
-                        }
-                    } else {
-                        console.warn("No animations found in wizard model");
-                    }
-                } else {
-                    console.error("AnimationMixer not available in Three.js");
+                mixer = new AnimationMixer(wizard);
+                if (wizardModel.animations.length > 0) {
+                    wizardModel.animations.forEach((clip: any) => {
+                        wizardAnimations[clip.name] = mixer.clipAction(clip);
+                    });
+                    playWizardAnimation(
+                        isRedirectingRef.current ? "PortalOpen" : "Waiting"
+                    );
                 }
-
             } catch (e) {
                 console.warn("Wizard model not found:", e);
             }
 
-            // === 🚢 Navio ===
+            // === Ship ===
             const loader = new GLTFLoader();
             loader.setDRACOLoader(dracoLoader);
-            const shipUrl = new URL(
-                "../../../assets/models/ship.gltf",
-                import.meta.url
-            ).href;
-
+            const shipUrl = new URL(models.ship, import.meta.url).href;
             const handleLoadComplete = () => {
                 if (!hasLoadedRef.current && onLoad) {
                     hasLoadedRef.current = true;
                     onLoad();
                 }
             };
-
             try {
                 const gltf = await loader.loadAsync(shipUrl);
                 model = gltf.scene;
@@ -262,56 +223,70 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
                 scene.add(model);
                 handleLoadComplete();
             } catch (e) {
-                console.error("Failed to load GLTF:", e);
-                const geometry = new BoxGeometry(1, 1, 3);
-                const material = new MeshStandardMaterial({
-                    color: 0xff0000,
-                    metalness: 0.5,
-                    roughness: 0.5,
-                });
-                model = new Mesh(geometry, material);
-                model.position.set(1.2, 0.6, 0);
-                scene.add(model);
+                console.error("Failed to load ship model:", e);
+                const fallback = new Mesh(
+                    new BoxGeometry(1, 1, 3),
+                    new MeshStandardMaterial({ color: 0xff0000 })
+                );
+                fallback.position.set(1.2, 0.6, 0);
+                model = fallback;
+                scene.add(fallback);
                 handleLoadComplete();
             }
 
-            // === Resize e animação ===
-            const onResize = () => {
+            // === Resize Handling (includes camera responsiveness) ===
+            const handleResize = () => {
                 if (!containerRef.current) return;
-                const w = containerRef.current.clientWidth;
-                const h = containerRef.current.clientHeight;
-                renderer!.setSize(w, h);
-                camera!.aspect = w / h;
-                camera!.updateProjectionMatrix();
-            };
-            window.addEventListener("resize", onResize);
+                const { clientWidth: w, clientHeight: h } =
+                    containerRef.current;
+                renderer.setSize(w, h);
+                renderer.setPixelRatio(
+                    Math.min(window.devicePixelRatio || 1, 2)
+                );
+                camera.aspect = w / h;
 
+                const isMobile = window.innerWidth < 768;
+                const isTablet =
+                    window.innerWidth >= 768 && window.innerWidth < 1024;
+                const newDistance = isMobile ? 9 : isTablet ? 7 : 6;
+                camera.position.set(0, 3, newDistance);
+
+                camera.updateProjectionMatrix();
+            };
+
+            resizeObserver = new ResizeObserver(handleResize);
+            resizeObserver.observe(containerRef.current);
+            window.addEventListener("resize", handleResize);
+
+            // === Animation Loop ===
             let lastTime = 0;
             const animate = (currentTime: number) => {
-                const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1);
+                const deltaTime = Math.min(
+                    (currentTime - lastTime) / 1000,
+                    0.1
+                );
                 lastTime = currentTime;
                 time += deltaTime;
-                
+
                 const isStorm = stormRef.current;
                 const waveAmplitude = isStorm ? 1.2 : 0.4;
                 const waveSpeed = isStorm ? 2.0 : 1.5;
                 const waveFrequency = isStorm ? 0.8 : 0.5;
 
-                // Update animation mixer
-                if (mixer) {
-                    mixer.update(deltaTime);
-                }
+                mixer?.update(deltaTime);
 
-                // Update wizard animation based on redirecting state
                 if (wizard && mixer) {
-                    const currentAnimationName = currentAnimation?.getClip?.()?.name;
-                    if (isRedirectingRef.current && currentAnimationName !== "PortalOpen") {
-                        console.log("Switching to PortalOpen animation");
+                    const currentName = currentAnimation?.getClip?.()?.name;
+                    if (
+                        isRedirectingRef.current &&
+                        currentName !== "PortalOpen"
+                    )
                         playWizardAnimation("PortalOpen");
-                    } else if (!isRedirectingRef.current && currentAnimationName !== "Waiting") {
-                        console.log("Switching to Waiting animation");
+                    else if (
+                        !isRedirectingRef.current &&
+                        currentName !== "Waiting"
+                    )
                         playWizardAnimation("Waiting");
-                    }
                 }
 
                 if (ocean) {
@@ -366,24 +341,26 @@ const Ship = ({ storm, onLoad, isRedirecting }: ShipProps) => {
             animationId = requestAnimationFrame(animate);
 
             return () => {
-                window.removeEventListener("resize", onResize);
                 if (animationId) cancelAnimationFrame(animationId);
+                window.removeEventListener("resize", handleResize);
+                resizeObserver?.disconnect();
                 renderer?.dispose?.();
             };
         };
 
         init();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
         <div
             ref={containerRef}
-            className="pointer-events-none absolute inset-0 -z-10"
+            className="absolute inset-0 -z-10 w-full h-full"
         >
-            <canvas ref={canvasRef} className="h-full w-full" />
+            <canvas ref={canvasRef} className="w-full h-full" />
         </div>
     );
 };
 
-export default Ship;
+export default ShipAndOcean;

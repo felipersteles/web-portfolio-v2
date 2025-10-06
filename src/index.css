@@ -72,6 +72,10 @@
   animation: fade-in 0.5s ease forwards;
 }
 
+button{
+  cursor: pointer;
+}
+
 .animate-fade-in.delay-200 {
   animation-delay: 0.2s;
 }

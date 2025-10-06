@@ -4,9 +4,13 @@ import { Github, Linkedin, Twitter } from "../../assets/icons";
 
 interface SocialIconsProps {
     storm: boolean;
+    isRedirecting: boolean;
 }
 
-const SocialIcons = ({ storm }: SocialIconsProps): React.ReactNode => {
+const SocialIcons = ({
+    storm,
+    isRedirecting,
+}: SocialIconsProps): React.ReactNode => {
     const [mq, setMq] = useState(false);
 
     useEffect(() => {
@@ -37,7 +41,9 @@ const SocialIcons = ({ storm }: SocialIconsProps): React.ReactNode => {
     return (
         <div
             className={`fixed bottom-0 left-8 z-[9999] flex flex-col items-center sm:left-4 transition-all duration-700 ${
-                storm ? "opacity-0 pointer-events-none" : "opacity-100"
+                storm || isRedirecting
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100"
             }`}
         >
             {icons.map(({ href, Icon }, index) => (

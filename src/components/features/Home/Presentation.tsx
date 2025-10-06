@@ -51,7 +51,11 @@ export const Presentation = ({ onClose }: PresentationProps) => {
                   border-r-2 border-[var(--color-primary)] 
                   rounded-lg overflow-hidden
                   transition-all duration-500 ease-in-out
-                  ${animateOpen ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+                  ${
+                      animateOpen
+                          ? "opacity-100 scale-100"
+                          : "opacity-0 scale-90"
+                  }`}
         >
             {/* Close Button */}
             <button
