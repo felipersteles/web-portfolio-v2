@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+<div align="center"><img src="https://felipeteles.com/og-image.jpg" width=100% /></div>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3cb96b51-6e17-44a8-ba60-86ef1e253b8b/deploy-status)](https://app.netlify.com/sites/felipersteles/deploys)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)  
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/felipersteles/web-portfolio-v2)](https://github.com/yourusername/web-portfolio-v2/releases)  
+[![GitHub issues](https://img.shields.io/github/issues/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/issues)  
+[![GitHub forks](https://img.shields.io/github/forks/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/network)  
+[![GitHub stars](https://img.shields.io/github/stars/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/stargazers)  
+[![GitHub watchers](https://img.shields.io/github/watchers/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/watchers)  
+[![Code size](https://img.shields.io/github/languages/code-size/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2)
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Web Portfolio V2
+This project is a React + TypeScript + Vite setup for building modern, performant web applications with Hot Module Replacement (HMR) and enhanced ESLint rules.
 
-## Expanding the ESLint configuration
+It serves as both a portfolio showcase and a demonstration of my expertise in backend development, frontend engineering, and 3D modeling.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 About Me
+I am a backend-focused developer with extensive experience building robust APIs, databases, and middleware systems.
+I also have strong frontend knowledge, enabling me to create responsive, interactive interfaces.
+> In addition, I work with 3D modeling and visualization, integrating realistic models into web experiences.
+This project reflects a blend of those skills — a modern frontend powered by React, enriched with 3D models and animations, supported by clean development tooling.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📦 Project Setup
+Two official Vite plugins are available for React integration:
+@vitejs/plugin-react — uses Babel for Fast Refresh.
+@vitejs/plugin-react-swc — uses SWC for Fast Refresh.
+
+>  React Compiler
+> The React Compiler is not enabled in this template due to performance considerations.
+> To enable it, see React Compiler Installation.
+
+## 📜 Project Details
+Tech Stack:
+- Frontend: React, TypeScript, Vite, Tailwind CSS
+- 3D Modeling: Three.js
+- State Management: Zustand
+- Animation: Framer Motion
+- Linting: ESLint with TypeScript rules
+
+## Scripts
+```bash
+# Start dev server  
+yarn dev      
+
+# Build project  
+yarn build    
+
+# Lint code  
+yarn lint    
+
+# Preview build  
+yarn preview   
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## About This Repository
+This repository demonstrates my ability to build full-stack applications with an emphasis on backend architecture, frontend performance, and advanced visual presentation. It reflects my commitment to clean code, scalable architecture, and creative UI design, including 3D interactive elements.
