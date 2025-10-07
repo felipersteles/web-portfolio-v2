@@ -4,14 +4,9 @@ import { useEffect, useRef } from "react";
 const earthUrl = new URL("../../../assets/models/earth.gltf", import.meta.url)
     .href;
 
-interface EarthProps {
-    onLoad?: () => void;
-}
-
-const Earth = ({ onLoad }: EarthProps) => {
+const Earth = () => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const hasLoadedRef = useRef(false); // Prevent multiple load calls
 
     useEffect(() => {
         let renderer: any = null;
@@ -20,14 +15,6 @@ const Earth = ({ onLoad }: EarthProps) => {
         let animationId: number | null = null;
         let model: any = null;
         let pivot: any = null; // to center when rotate
-
-        const handleLoadComplete = () => {
-            // Only call onLoad once
-            if (!hasLoadedRef.current && onLoad) {
-                hasLoadedRef.current = true;
-                onLoad();
-            }
-        };
 
         const init = async () => {
             const [three, loaders, draco] = await Promise.all([
@@ -126,7 +113,6 @@ const Earth = ({ onLoad }: EarthProps) => {
                 scene.add(pivot);
 
                 // Call load complete after successful model load
-                handleLoadComplete();
             } catch (e) {
                 console.error("Failed to load Earth GLTF:", e);
 
@@ -144,7 +130,6 @@ const Earth = ({ onLoad }: EarthProps) => {
                 scene.add(pivot);
 
                 // Also call load complete for fallback
-                handleLoadComplete();
             }
 
             // Manual drag-to-rotate behavior (rotate model only)
@@ -239,7 +224,7 @@ const Earth = ({ onLoad }: EarthProps) => {
 
         init();
         return cleanup;
-    }, [onLoad]);
+    }, []);
 
     return (
         <div ref={containerRef} className="h-full w-full relative">

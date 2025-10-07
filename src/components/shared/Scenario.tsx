@@ -20,14 +20,14 @@ const Scenario = ({ children }: ScenarioProps) => {
 
     const navigate = useNavigate();
 
-    const handleRedirect = () => {
+    const handleRedirect = (path: string) => {
         // Start the animation
         fnOnChange("isRedirecting", true);
 
         // Navigate after animation completes
         setTimeout(() => {
             fnOnChange("isRedirecting", false);
-            navigate("/");
+            navigate(path);
         }, 3000);
     };
 
@@ -62,12 +62,12 @@ const Scenario = ({ children }: ScenarioProps) => {
                 >
                     <PowerButton
                         isRedirecting={isRedirecting}
-                        onClick={handleRedirect}
+                        onClick={()=>handleRedirect('/')}
                     />
 
                     <LogoComponent isRedirecting={isRedirecting} theme="dark" />
 
-                    <ContactComponent isRedirecting={isRedirecting} />
+                    <ContactComponent onClick={()=>handleRedirect('/contact')} isRedirecting={isRedirecting} />
                 </div>
 
                 <div

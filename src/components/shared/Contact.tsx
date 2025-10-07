@@ -1,12 +1,16 @@
-import { NavLink } from "react-router-dom";
-
-const ContactComponent = ({ isRedirecting }: { isRedirecting: boolean }) => {
+const ContactComponent = ({
+    onClick,
+    isRedirecting,
+}: {
+    onClick: () => void;
+    isRedirecting: boolean;
+}) => {
     return (
-        <NavLink
+        <div
             className={`transition-all duration-700 ${
                 isRedirecting ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
-            to="/contact"
+            onClick={onClick}
         >
             <button
                 className="
@@ -22,7 +26,7 @@ const ContactComponent = ({ isRedirecting }: { isRedirecting: boolean }) => {
             >
                 Contact Me
             </button>
-        </NavLink>
+        </div>
     );
 };
 
