@@ -110,7 +110,6 @@ const HomePage = () => {
                 <RedirectButton
                     text={routes.blog.name}
                     path={routes.blog.path}
-                    isOut
                     className="border-yellow-400 hover:border-yellow-300"
                     textColor="text-yellow-300"
                     hoverTextColor="text-yellow-800"

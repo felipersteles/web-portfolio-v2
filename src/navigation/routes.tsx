@@ -5,6 +5,7 @@ import Loading from "../components/shared/Loading";
 import { Book, BookOpen, FlaskConical, Folder, Home, Phone, Sparkles } from "lucide-react";
 import PapersPage from "../pages/Papers/index.tsx";
 import ContactPage from "../pages/Contact/index.tsx";
+import BlogPage from "../pages/Blog/index.tsx";
 
 export const routes = {
     main: {
@@ -34,8 +35,8 @@ export const routes = {
     blog: {
         icon: BookOpen,
         name: "Blog",
-        path: "https://blog.felipeteles.com",
-        element: <HomePage />,
+        path: "/blog",
+        element: <BlogPage />,
     },
     publications: {
         icon: FlaskConical,

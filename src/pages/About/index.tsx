@@ -11,7 +11,7 @@ const AboutPage = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 1 }}
     >
-      <div className="max-w-4xl bg-primary/50 backdrop-blur-md px-10 py-8 rounded-2xl shadow-2xl text-white text-lg leading-relaxed text-justify space-y-6">
+      <div className="max-w-4xl max-h-[80vh] overflow-y-auto bg-primary/50 backdrop-blur-md px-10 py-8 rounded-2xl shadow-2xl text-white text-lg leading-relaxed text-justify space-y-6">
         <h1 className="text-4xl font-bold border-b-4 border-blue-400 pb-3 mb-4">
           About Me
         </h1>
