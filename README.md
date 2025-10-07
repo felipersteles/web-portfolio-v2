@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://www.felipeteles.com/og-image.jpg" width="100%" />
+  <img src="public/og-image.jpg" width="100%" />
 </div>
 
 
