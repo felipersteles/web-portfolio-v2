@@ -2,16 +2,34 @@
   <img src="https://www.felipeteles.com/og-image.jpg" width="100%" />
 </div>
 
-<p align="center">
-[![Netlify Status](https://api.netlify.com/api/v1/badges/3cb96b51-6e17-44a8-ba60-86ef1e253b8b/deploy-status)](https://app.netlify.com/sites/felipersteles/deploys)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)  
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/felipersteles/web-portfolio-v2)](https://github.com/yourusername/web-portfolio-v2/releases)  
-[![GitHub issues](https://img.shields.io/github/issues/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/issues)  
-[![GitHub forks](https://img.shields.io/github/forks/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/network)  
-[![GitHub stars](https://img.shields.io/github/stars/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/stargazers)  
-[![GitHub watchers](https://img.shields.io/github/watchers/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2/watchers)  
-[![Code size](https://img.shields.io/github/languages/code-size/felipersteles/web-portfolio-v2)](https://github.com/felipersteles/web-portfolio-v2)
-</p>
+
+<div align="center" style="display: flex; gap: 8px; flex-wrap: wrap;">
+  <a href="https://app.netlify.com/sites/felipersteles/deploys">
+    <img src="https://api.netlify.com/api/v1/badges/3cb96b51-6e17-44a8-ba60-86ef1e253b8b/deploy-status" alt="Netlify Status">
+  </a>
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2/releases">
+    <img src="https://img.shields.io/github/v/release/felipersteles/web-portfolio-v2" alt="GitHub Release">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2/issues">
+    <img src="https://img.shields.io/github/issues/felipersteles/web-portfolio-v2" alt="GitHub Issues">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2/network">
+    <img src="https://img.shields.io/github/forks/felipersteles/web-portfolio-v2" alt="GitHub Forks">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2/stargazers">
+    <img src="https://img.shields.io/github/stars/felipersteles/web-portfolio-v2" alt="GitHub Stars">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2/watchers">
+    <img src="https://img.shields.io/github/watchers/felipersteles/web-portfolio-v2" alt="GitHub Watchers">
+  </a>
+  <a href="https://github.com/felipersteles/web-portfolio-v2">
+    <img src="https://img.shields.io/github/languages/code-size/felipersteles/web-portfolio-v2" alt="Code Size">
+  </a>
+</div>
+
 
 # 💻 Web Portfolio V2
 
