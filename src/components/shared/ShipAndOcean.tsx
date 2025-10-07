@@ -7,12 +7,10 @@ interface ShipAndOceanProps {
     onLoad?: () => void;
 }
 
-const models = {
-    ship: "../../assets/models/ship.gltf",
-    tree: "../../assets/models/tree.gltf",
-    chest: "../../assets/models/chest.gltf",
-    wizard: "../../assets/models/wizard.gltf",
-};
+const treeUrl = new URL("../../assets/models/tree.gltf", import.meta.url).href;
+const shipUrl = new URL("../../assets/models/ship.gltf", import.meta.url).href;
+const ruinsUrl = new URL("../../assets/models/chest.gltf", import.meta.url).href;
+const wizardUrl = new URL("../../assets/models/wizard.gltf", import.meta.url).href;
 
 const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -146,7 +144,6 @@ const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
 
             // === Tree ===
             const treeLoader = new GLTFLoader();
-            const treeUrl = new URL(models.tree, import.meta.url).href;
             try {
                 const treeModel = await treeLoader.loadAsync(treeUrl);
                 const tree1 = treeModel.scene.clone();
@@ -160,7 +157,6 @@ const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
             // === Chest / Ruins ===
             const ruinsLoader = new GLTFLoader();
             ruinsLoader.setDRACOLoader(dracoLoader);
-            const ruinsUrl = new URL(models.chest, import.meta.url).href;
             try {
                 const ruinsModel = await ruinsLoader.loadAsync(ruinsUrl);
                 const ruins = ruinsModel.scene.clone();
@@ -173,7 +169,6 @@ const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
 
             // === Wizard ===
             const wizardLoader = new GLTFLoader();
-            const wizardUrl = new URL(models.wizard, import.meta.url).href;
             const playWizardAnimation = (name: string) => {
                 if (!mixer) return;
                 if (currentAnimation) currentAnimation.stop();
@@ -208,7 +203,6 @@ const ShipAndOcean = ({ storm, onLoad, isRedirecting }: ShipAndOceanProps) => {
             // === Ship ===
             const loader = new GLTFLoader();
             loader.setDRACOLoader(dracoLoader);
-            const shipUrl = new URL(models.ship, import.meta.url).href;
             const handleLoadComplete = () => {
                 if (!hasLoadedRef.current && onLoad) {
                     hasLoadedRef.current = true;
