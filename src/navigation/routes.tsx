@@ -2,10 +2,10 @@ import HomePage from "../pages/Home/index.tsx";
 import AboutPage from "../pages/About/index.tsx";
 import ProjectsPage from "../pages/Projects/index.tsx";
 import Loading from "../components/shared/Loading";
-import { Book, BookOpen, FlaskConical, Folder, Home, Phone, Sparkles } from "lucide-react";
+import { Book, BarChart2, FlaskConical, Folder, Home, Phone, Sparkles } from "lucide-react";
 import PapersPage from "../pages/Papers/index.tsx";
 import ContactPage from "../pages/Contact/index.tsx";
-import BlogPage from "../pages/Blog/index.tsx";
+import StatsPage from "../pages/Stats/index.tsx";
 
 export const routes = {
     main: {
@@ -32,11 +32,11 @@ export const routes = {
         path: "/loading",
         element: <Loading />,
     },
-    blog: {
-        icon: BookOpen,
-        name: "Blog",
-        path: "/blog",
-        element: <BlogPage />,
+    stats: {
+        icon: BarChart2,
+        name: "Stats",
+        path: "/stats",
+        element: <StatsPage />,
     },
     publications: {
         icon: FlaskConical,

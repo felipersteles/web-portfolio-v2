@@ -3,6 +3,33 @@
 
 export const projects: ProjectDTO[] = [
     {
+        id: 12,
+        name: "Olho no Drop",
+        description: "Surf photos marketplace.",
+        tags: ["react", "nextjs", "typescript"],
+        demo: "https://olhonodrop.com/",
+        star: true,
+    },
+    {
+        id: 8,
+        name: "Checkers",
+        description:
+            "Checkers game in a brazilian way. Not finished yet but I am doing without any content.",
+        tags: ["html", "css", "javascript"],
+
+        demo: "https://felipersteles.github.io/checkers-with-ai/",
+        github: "https://github.com/felipersteles/checkers-with-ai",
+        star: false,
+    },
+    {
+        id: 13,
+        name: "Ajude Aqui",
+        description: "A platform connecting people who want to help with those in need.",
+        tags: ["react", "nextjs", "typescript"],
+        demo: "https://www.ajudeaqui.com/",
+        star: true,
+    },
+    {
         id: 0,
         name: "LightForms",
         description: "My first SaaS developed in Nestjs and Nextjs/React",
@@ -84,17 +111,6 @@ export const projects: ProjectDTO[] = [
         star: true,
     },
     {
-        id: 8,
-        name: "Jogo de damas",
-        description:
-            "Checkers game in a brazilian way. Not finished yet but I am doing without any content.",
-        tags: ["html", "css", "javascript"],
-
-        demo: "https://felipersteles.github.io/jogo-de-damas/",
-        github: "https://github.com/felipersteles/jogo-de-damas",
-        star: false,
-    },
-    {
         id: 9,
         name: "Tic Tac Toe",
         description:
@@ -103,16 +119,6 @@ export const projects: ProjectDTO[] = [
 
         demo: "https://felipersteles.github.io/TicTacToe/",
         github: "https://github.com/felipersteles/TicTacToe",
-        star: false,
-    },
-    {
-        id: 10,
-        name: "A cat",
-        description: "Just to improve the css knowledge",
-        tags: ["css", "html"],
-
-        demo: "https://felipersteles.github.io/gatinho/",
-        github: "https://github.com/felipersteles/gatinho",
         star: false,
     },
 ];

@@ -1,125 +1,107 @@
 import { motion } from "framer-motion";
-import type { Variants } from "framer-motion";
 import { CheckCircle, Star } from "lucide-react";
 import { Github } from "../../../assets/icons";
 import type { ProjectDTO } from "../../../data/projects";
 
 type ProjectCardParams = {
     project: ProjectDTO;
+    index?: number;
 };
 
-const ProjectCard = ({ project }: ProjectCardParams) => {
+const ProjectCard = ({ project, index = 0 }: ProjectCardParams) => {
     return (
         <motion.li
-            key={project.id}
-            variants={Item}
-            className="
-        group w-80 h-[40vh] bg-text text-body 
-        p-6 mr-32 rounded-[0_50px_0_50px] flex flex-col justify-between 
-        border border-body transition-all duration-200 ease-in-out
-        hover:bg-body hover:text-text hover:border-text
-        max-[800px]:w-64 max-[800px]:mr-24 max-[800px]:h-[35vh]
-        max-[640px]:w-56 max-[640px]:mr-16 max-[640px]:h-[35vh]
-        max-[480px]:w-48 max-[480px]:mr-16 max-[480px]:p-4
-        max-[400px]:w-40 max-[400px]:mr-16 max-[400px]:h-[40vh]
-      "
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.06 }}
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="group flex flex-col cursor-pointer
+                       bg-text/90 backdrop-blur-md text-body
+                       border border-body/30
+                       rounded-[0_30px_0_30px] overflow-hidden
+                       shadow-lg hover:shadow-2xl
+                       transition-shadow duration-300"
+            style={{ willChange: "transform" }}
         >
-            {/* Header */}
-            <div className="flex justify-between w-full items-center">
-                <h2 className="text-[calc(1em+0.5vw)] font-bold">
-                    {project.name}
-                </h2>
-
-                {/* Icone de disponibilidade */}
-                {project.star ? (
-                    <Star
-                        size={30}
-                        className="text-yellow-500 group-hover:text-green-400 transition-colors duration-200"
-                    />
-                ) : (
-                    <CheckCircle
-                        size={30}
-                        className="text-green-500 group-hover:text-green-400 transition-colors duration-200"
-                    />
-                )}
+            {/* Browser chrome */}
+            <div className="bg-body/20 backdrop-blur-sm text-body
+                            border-b border-body/20
+                            px-3 py-2 flex items-center gap-2 shrink-0">
+                <div className="flex gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-red-400" />
+                    <span className="w-3 h-3 rounded-full bg-yellow-300" />
+                    <span className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+                <span className="text-xs truncate opacity-50 ml-1">{project.demo}</span>
             </div>
 
-            {/* Description */}
-            <h2
-                className="
-          text-[calc(0.8em+0.3vw)] font-[500] font-[Karla,sans-serif]
-          max-[480px]:text-[calc(0.7em+0.3vw)]
-          max-[400px]:text-[calc(0.6em+0.3vw)]
-        "
-            >
-                {project.description}
-            </h2>
-
-            {/* Tags */}
-            <div
-                className="
-          border-t-2 border-body pt-2 flex flex-wrap
-          group-hover:border-text
-        "
-            >
-                {project.tags.map((t, id) => (
-                    <span
-                        key={id}
-                        className="
-              mr-4 text-[calc(0.8em+0.3vw)]
-              max-[480px]:text-[0.7em]
-            "
-                    >
-                        #{t}
-                    </span>
-                ))}
+            {/* iframe preview */}
+            <div className="relative overflow-hidden shrink-0" style={{ height: "180px" }}>
+                <iframe
+                    src={project.demo}
+                    title={project.name}
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin"
+                    className="border-0 pointer-events-none absolute top-0 left-0"
+                    style={{
+                        width: "333%",
+                        height: "600px",
+                        transform: "scale(0.3)",
+                        transformOrigin: "top left",
+                    }}
+                />
+                {/* subtle overlay on hover */}
+                <div className="absolute inset-0 bg-text/0 group-hover:bg-text/10 transition-colors duration-300" />
             </div>
 
-            {/* Footer */}
-            <footer className="flex justify-between items-center">
-                <a
-                    href={project.demo}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="
-            bg-body text-text no-underline px-[calc(2rem+2vw)] py-2
-            rounded-bl-[50px] text-[calc(1em+0.5vw)]
-            group-hover:bg-text group-hover:text-body
-            transition-all duration-200
-          "
-                >
-                    Go to site.
-                </a>
+            {/* Card body */}
+            <div className="p-5 flex flex-col gap-3 flex-1">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-base font-bold">{project.name}</h2>
+                    {project.star ? (
+                        <Star size={20} className="text-yellow-300 group-hover:text-yellow-200 transition-colors duration-200 shrink-0" />
+                    ) : (
+                        <CheckCircle size={20} className="text-green-400 group-hover:text-green-300 transition-colors duration-200 shrink-0" />
+                    )}
+                </div>
 
-                {project.github && (
+                <p className="text-sm font-medium font-[Karla,sans-serif] opacity-80 flex-1">
+                    {project.description}
+                </p>
+
+                <div className="border-t border-body/30 pt-2 flex flex-wrap gap-x-3">
+                    {project.tags.map((t, id) => (
+                        <span key={id} className="text-xs opacity-60">#{t}</span>
+                    ))}
+                </div>
+
+                <footer className="flex justify-between items-center">
                     <a
-                        href={project.github}
+                        href={project.demo}
                         target="_blank"
                         rel="noreferrer"
-                        className="
-              text-inherit transition-colors
-              group-hover:text-blue-500
-            "
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-body/20 hover:bg-body/40 text-body no-underline
+                                   px-5 py-2 rounded-bl-[24px] text-sm
+                                   transition-all duration-200 cursor-pointer"
                     >
-                        <Github
-                            width={30}
-                            height={30}
-                            className="transition-colors duration-200"
-                        />
+                        Go to site.
                     </a>
-                )}
-            </footer>
+                    {project.github && (
+                        <a
+                            href={project.github}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-body/60 hover:text-body transition-colors cursor-pointer"
+                        >
+                            <Github width={24} height={24} className="transition-colors duration-200" />
+                        </a>
+                    )}
+                </footer>
+            </div>
         </motion.li>
     );
-};
-
-// Framer Motion configuration
-const Item: Variants = {
-    hidden: { scale: 0 },
-    show: {
-        scale: 1,
-        transition: { type: "spring", duration: 0.5 },
-    },
 };
 
 export default ProjectCard;
