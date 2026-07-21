@@ -54,8 +54,11 @@ const NavBar = ({ c, theme, onToggleTheme, onOpenContact }: NavBarProps) => {
                 borderBottom: `1px solid ${c.border}`,
             }}
         >
-            <div style={{ fontFamily: mono, fontSize: "14px", letterSpacing: "2px", color: c.accent, fontWeight: 600 }}>
-                FTeles
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src="/logo.png" alt="FTeles logo" style={{ width: "28px", height: "28px", objectFit: "contain" }} />
+                <span style={{ fontFamily: mono, fontSize: "14px", letterSpacing: "2px", color: c.accent, fontWeight: 600 }}>
+                    FTeles
+                </span>
             </div>
 
             <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
