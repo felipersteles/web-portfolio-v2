@@ -16,6 +16,7 @@ const FooterSection = ({ c }: FooterSectionProps) => (
         alignItems: "center",
         justifyContent: "space-between",
         borderTop: `1px solid ${c.border}`,
+        background: c.sectionBg,
         fontFamily: mono,
         fontSize: "12px",
         color: c.muted,

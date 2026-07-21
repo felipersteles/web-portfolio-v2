@@ -148,8 +148,8 @@ const StatsSection = ({ c }: StatsSectionProps) => {
     }, []);
 
     return (
-        <section id="stats" style={{ padding: "120px 56px", background: c.surfaceAlt }}>
-            <div style={{ fontFamily: mono, fontSize: "13px", letterSpacing: "2px", color: c.accent, marginBottom: "14px" }}>GITHUB</div>
+        <section id="stats" style={{ padding: "120px 56px", background: c.sectionBg }}>
+            <div className="section-label" style={{ fontFamily: mono, fontSize: "13px", letterSpacing: "2px", color: c.accent, marginBottom: "14px", display: "inline-block" }}>GITHUB</div>
             <h2 style={{ fontFamily: serif, fontSize: "clamp(28px, 4vw, 42px)", margin: "0 0 44px", fontWeight: 700 }}>Live Stats</h2>
 
             {loading && <div style={{ fontFamily: mono, color: c.muted, animation: "pulse 1.6s infinite" }}>Loading GitHub data…</div>}

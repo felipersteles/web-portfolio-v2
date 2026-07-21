@@ -10,34 +10,79 @@ html {
 
 body {
     margin: 0;
-    transition: background-color 0.3s, color 0.3s;
+    background: #040814;
+    transition: background 0.3s;
 }
 
 ::selection {
     background: #c9a463;
-    color: #0f0d0a;
+    color: #040814;
 }
 
 button {
     cursor: pointer;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.35; }
-    50%       { opacity: 0.9; }
+/* ── CSS custom property for theme-reactive accent colour ── */
+:root {
+    --accent: #c9a463;
 }
 
-/* ── Globe canvas default size ── */
-.globe-canvas {
-    width: 460px;
-    height: 460px;
+/* ── Section overline label ── */
+.section-label {
+    border-left: 2px solid var(--accent);
+    padding-left: 10px;
+}
+
+/* ── Scroll-reveal (opacity/transform set via JS) ── */
+
+/* ── Scroll indicator bounce ── */
+@keyframes scroll-bounce {
+    0%, 100% { transform: translateY(0);   opacity: 0.5; }
+    50%       { transform: translateY(7px); opacity: 1;   }
+}
+.scroll-arrow {
+    animation: scroll-bounce 1.9s ease-in-out infinite;
+}
+
+/* ── Film grain ── */
+@keyframes grain-shift {
+    0%  { transform: translate(0, 0); }
+    20% { transform: translate(-1%, 2%); }
+    40% { transform: translate(2%, -1%); }
+    60% { transform: translate(-2%, 1%); }
+    80% { transform: translate(1%, -2%); }
+    100%{ transform: translate(0, 0); }
+}
+.grain-overlay {
+    position: fixed;
+    inset: -10%;          /* slightly oversized so shifting never reveals edges */
+    width: 120%;
+    height: 120%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.038;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    animation: grain-shift 0.12s steps(1) infinite;
+    mix-blend-mode: overlay;
 }
 
 /* ── Projects grid ── */
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 22px;
+    gap: 24px;
+}
+
+/* ── Project card hover ── */
+.project-card {
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 48px rgba(201,164,99,0.14);
+    border-color: var(--accent) !important;
 }
 
 /* ── Stats metric grid ── */
@@ -45,6 +90,22 @@ button {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 16px;
+}
+
+/* ── Paper row hover accent ── */
+.paper-row {
+    border-left: 2px solid transparent;
+    transition: border-color 0.22s ease;
+    cursor: default;
+}
+.paper-row:hover {
+    border-left-color: var(--accent);
+}
+
+/* ── Pulse (loading states) ── */
+@keyframes pulse {
+    0%, 100% { opacity: 0.35; }
+    50%       { opacity: 0.9; }
 }
 
 /* ── Tablet (≤ 1024px) ── */
@@ -55,15 +116,12 @@ button {
 
     .hero-section {
         padding: 140px 32px 72px !important;
-        gap: 32px !important;
     }
 
-    .globe-canvas {
-        width: 380px;
-        height: 380px;
+    #projects {
+        padding: 96px 0 !important;
     }
 
-    #projects,
     #stats,
     #papers,
     .about-section {
@@ -75,7 +133,7 @@ button {
     }
 }
 
-/* ── Tablet (≤ 900px) — grids de 2 colunas ── */
+/* ── Tablet (≤ 900px) ── */
 @media (max-width: 900px) {
     .projects-grid {
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -88,7 +146,6 @@ button {
 
 /* ── Small tablet / large mobile (≤ 768px) ── */
 @media (max-width: 768px) {
-    /* Nav */
     .nav-links {
         display: none !important;
     }
@@ -98,49 +155,34 @@ button {
         gap: 12px !important;
     }
 
-    /* Hero — stack vertically */
     .hero-section {
         padding: 110px 20px 56px !important;
-        flex-direction: column !important;
         align-items: flex-start !important;
-        gap: 40px !important;
     }
 
-    .globe-wrapper {
-        width: 100% !important;
-        align-self: center !important;
+    #projects {
+        padding: 72px 0 !important;
     }
 
-    .globe-canvas {
-        width: 100%;
-        height: 340px;
-    }
-
-    /* Sections */
-    #projects,
     #stats,
     #papers,
     .about-section {
         padding: 72px 20px !important;
     }
 
-    /* Projects — 1 coluna */
     .projects-grid {
         grid-template-columns: 1fr;
     }
 
-    /* Stats metrics — 2 colunas */
     .stats-metrics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Stats profile card — empilha */
     .stats-counters {
         width: 100%;
         justify-content: space-around;
     }
 
-    /* About — stack image above text */
     .about-section {
         flex-direction: column !important;
         align-items: center !important;
@@ -150,11 +192,10 @@ button {
     .about-img {
         width: 100% !important;
         max-width: 400px !important;
-        height: 340px !important;
+        height: 320px !important;
         align-self: center !important;
     }
 
-    /* Footer */
     footer {
         padding: 28px 20px !important;
         flex-direction: column !important;
@@ -169,33 +210,30 @@ button {
         padding: 12px 16px !important;
     }
 
-    /* Hide theme toggle on very small screens to save space */
     .theme-toggle {
         display: none !important;
     }
 
     .hero-section {
-        padding: 96px 16px 48px !important;
+        padding: 100px 16px 48px !important;
     }
 
-    .globe-canvas {
-        height: 280px;
+    #projects {
+        padding: 56px 0 !important;
     }
 
-    #projects,
     #stats,
     #papers,
     .about-section {
         padding: 56px 16px !important;
     }
 
-    /* Stats metrics — 2 colunas no mobile pequeno também */
     .stats-metrics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .about-img {
-        height: 280px !important;
+        height: 260px !important;
     }
 
     footer {
