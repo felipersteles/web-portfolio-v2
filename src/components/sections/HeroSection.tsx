@@ -39,7 +39,7 @@ const useFadeIn = (ref: { readonly current: HTMLElement | null }) => {
 const hoverIn  = (bg: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "0.80"; void bg; };
 const hoverOut = ()            => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "1"; };
 const borderIn  = (color: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = color; (e.currentTarget as HTMLElement).style.color = color; };
-const borderOut = (color: string, dim: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = dim; (e.currentTarget as HTMLElement).style.color = dim; };
+const borderOut = (_color: string, dim: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = dim; (e.currentTarget as HTMLElement).style.color = dim; };
 
 const HeroSection = ({ c }: HeroSectionProps) => {
     const sectionRef = useRef<HTMLElement>(null);
