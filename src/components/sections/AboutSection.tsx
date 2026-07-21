@@ -21,7 +21,7 @@ const AboutSection = ({ c }: AboutSectionProps) => (
     >
         <img
             src={meImg}
-            alt="Felipe Teles"
+            alt="Felipe Teles - Senior Software Engineer and AI researcher from Brazil"
             className="about-img"
             style={{ width: "380px", height: "460px", objectFit: "cover", borderRadius: "4px", flexShrink: 0, display: "block" }}
         />

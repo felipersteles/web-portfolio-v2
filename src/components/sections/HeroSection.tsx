@@ -8,6 +8,7 @@ interface HeroSectionProps {
 
 const HeroSection = ({ c, theme }: HeroSectionProps) => (
     <section
+        id="hero"
         className="hero-section"
         style={{
             minHeight: "100vh",

@@ -23,7 +23,7 @@ const PapersSection = ({ c }: PapersSectionProps) => (
                         }}
                     >
                         <div style={{ maxWidth: "720px" }}>
-                            <div style={{ fontSize: "17px", fontWeight: 600, lineHeight: 1.4 }}>{paper.title}</div>
+                            <h3 style={{ fontSize: "17px", fontWeight: 600, lineHeight: 1.4, margin: 0 }}>{paper.title}</h3>
                             <div style={{ fontFamily: mono, fontSize: "12px", color: c.muted, marginTop: "8px" }}>
                                 DOI: {paper.doi}
                             </div>
