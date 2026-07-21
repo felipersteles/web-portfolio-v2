@@ -14,12 +14,12 @@ export const projects: ProjectDTO[] = [
         id: 8,
         name: "Checkers",
         description:
-            "Checkers game in a brazilian way. Not finished yet but I am doing without any content.",
+            "Checkers game in a many ways. Help this project to be better. You can play with a friend or with an AI.",
         tags: ["html", "css", "javascript"],
 
         demo: "https://felipersteles.github.io/checkers-with-ai/",
         github: "https://github.com/felipersteles/checkers-with-ai",
-        star: false,
+        star: true,
     },
     {
         id: 13,
@@ -54,7 +54,7 @@ export const projects: ProjectDTO[] = [
         tags: ["nextjs", "typescript", "chakra.ui"],
         demo: "https://news.felipeteles.com",
         github: "https://github.com/felipersteles/flying-news",
-        star: true,
+        star: false,
 
     },
     {
