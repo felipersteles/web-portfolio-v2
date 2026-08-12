@@ -31,14 +31,14 @@ const useFadeIn = (ref: { readonly current: HTMLElement | null }) => {
             });
         }, 80);
         return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 };
 
 // Inline hover handler helpers to keep JSX lean
-const hoverIn  = (bg: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "0.80"; void bg; };
-const hoverOut = ()            => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "1"; };
-const borderIn  = (color: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = color; (e.currentTarget as HTMLElement).style.color = color; };
+const hoverIn = (bg: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "0.80"; void bg; };
+const hoverOut = () => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.opacity = "1"; };
+const borderIn = (color: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = color; (e.currentTarget as HTMLElement).style.color = color; };
 const borderOut = (_color: string, dim: string) => (e: React.MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = dim; (e.currentTarget as HTMLElement).style.color = dim; };
 
 const HeroSection = ({ c }: HeroSectionProps) => {
@@ -103,10 +103,9 @@ const HeroSection = ({ c }: HeroSectionProps) => {
                         maxWidth: "480px",
                     }}
                 >
-                    I build full-stack products end to end and research applied
-                    machine learning for medical image analysis. Twelve shipped
-                    projects, three peer-reviewed papers, and a decade-deep
-                    changelog on GitHub.
+                    I build and ship full-stack products end to end, from architecture and infrastructure to the final interface. 
+                    Alongside engineering, I research applied machine learning for medical image analysis. 
+                    12+ shipped projects, 5 peer-reviewed papers, and nearly a decade of building in public on GitHub.
                 </p>
 
                 <div data-reveal style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>

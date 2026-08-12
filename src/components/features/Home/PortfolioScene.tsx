@@ -6,12 +6,22 @@ const earthUrl = new URL("../../../assets/models/earth.gltf", import.meta.url).h
 
 interface PortfolioSceneProps {
     theme: "dark" | "light";
+    revealed?: boolean;
 }
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const easeInOutCubic = (t: number) =>
     t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+// Overshoots slightly past 1 before settling — the "rise up and drop into place" feel
+const easeOutBack = (t: number) => {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+};
+
+const ENTRY_DROP = 0.2;   // world units the globe starts below its resting spot
+const ENTRY_DURATION = 0.65; // seconds
 
 type ScrollState = {
     ndcX: number; ndcY: number; scale: number;
@@ -52,8 +62,16 @@ function interpState(states: ScrollState[], t: number): ScrollState {
     };
 }
 
-const PortfolioScene = ({ theme }: PortfolioSceneProps) => {
+const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    // Persists across theme-driven scene rebuilds so the entry animation only ever plays once
+    const revealTimeRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (revealed && revealTimeRef.current === null) {
+            revealTimeRef.current = performance.now();
+        }
+    }, [revealed]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -329,8 +347,16 @@ const PortfolioScene = ({ theme }: PortfolioSceneProps) => {
                 const targetX = st.ndcX * halfW + (reducedMotion ? 0 : mouse.cx * 0.15);
                 const targetY = st.ndcY * halfH + (reducedMotion ? 0 : -mouse.cy * 0.10) + bob;
 
+                // Entry: globe rises from below the fold, overshoots, then settles into place
+                let entryOffsetY = -ENTRY_DROP;
+                if (revealTimeRef.current !== null) {
+                    const elapsed = (now - revealTimeRef.current) / 1000;
+                    const raw = clamp(elapsed / ENTRY_DURATION, 0, 1);
+                    entryOffsetY = -ENTRY_DROP * (1 - easeOutBack(raw));
+                }
+
                 orbGroup.position.x = lerp(orbGroup.position.x, targetX, 0.038);
-                orbGroup.position.y = lerp(orbGroup.position.y, targetY, 0.038);
+                orbGroup.position.y = lerp(orbGroup.position.y, targetY, 0.038) + entryOffsetY;
                 orbGroup.scale.setScalar(lerp(orbGroup.scale.x, st.scale, 0.046));
 
                 // Keep core point light at orbGroup world position

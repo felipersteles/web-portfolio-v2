@@ -3,6 +3,7 @@ import { type Colors, mono } from "../../theme";
 interface FooterSectionProps { c: Colors }
 
 const LINKS = [
+    { label: "Resume",   href: "/resume" },
     { label: "GitHub",   href: "https://github.com/felipersteles" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/felipersteles" },
     { label: "Scholar",  href: "https://scholar.google.com/citations?user=CpPKPnkAAAAJ&hl=en" },
@@ -26,7 +27,7 @@ const FooterSection = ({ c }: FooterSectionProps) => (
         <div>© {new Date().getFullYear()} Felipe Teles</div>
         <div style={{ display: "flex", gap: "24px" }}>
             {LINKS.map(({ label, href }) => (
-                <a key={label} href={href} target={href.startsWith("mailto") ? undefined : "_blank"} rel="noreferrer"
+                <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
                     style={{ color: c.muted, textDecoration: "none" }}>
                     {label}
                 </a>

@@ -38,4 +38,5 @@ export const lightColors: Colors = {
 };
 
 export const mono = "'IBM Plex Mono', monospace";
-export const serif = "'Cormorant Garamond', serif";
+export const serif = "'Inter', sans-serif";
+export const heading = "'Space Grotesk', sans-serif";

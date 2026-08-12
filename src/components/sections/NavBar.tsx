@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { type Colors, mono } from "../../theme";
+import { type Colors, heading } from "../../theme";
 
 interface NavBarProps {
     c: Colors;
@@ -56,7 +56,7 @@ const NavBar = ({ c, theme, onToggleTheme, onOpenContact }: NavBarProps) => {
         >
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <img src="/logo.png" alt="FTeles logo" style={{ width: "28px", height: "28px", objectFit: "contain" }} />
-                <span style={{ fontFamily: mono, fontSize: "14px", letterSpacing: "2px", color: c.accent, fontWeight: 600 }}>
+                <span style={{ fontFamily: heading, fontSize: "14px", letterSpacing: "2px", color: c.accent, fontWeight: 600 }}>
                     FTeles
                 </span>
             </div>
@@ -70,7 +70,7 @@ const NavBar = ({ c, theme, onToggleTheme, onOpenContact }: NavBarProps) => {
                             href={`#${id}`}
                             style={{
                                 position: "relative",
-                                fontFamily: mono,
+                                fontFamily: heading,
                                 fontSize: "11px",
                                 letterSpacing: "1.5px",
                                 color: isActive ? c.accent : c.muted,
@@ -106,7 +106,7 @@ const NavBar = ({ c, theme, onToggleTheme, onOpenContact }: NavBarProps) => {
                 <button
                     className="theme-toggle"
                     onClick={onToggleTheme}
-                    style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "1px", color: c.muted, background: "none", border: `1px solid ${c.border}`, padding: "7px 14px", borderRadius: "2px", transition: "color .2s, border-color .2s" }}
+                    style={{ fontFamily: heading, fontSize: "11px", letterSpacing: "1px", color: c.muted, background: "none", border: `1px solid ${c.border}`, padding: "7px 14px", borderRadius: "2px", transition: "color .2s, border-color .2s" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = c.text; (e.currentTarget as HTMLElement).style.borderColor = c.text; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = c.muted; (e.currentTarget as HTMLElement).style.borderColor = c.border; }}
                 >
@@ -114,7 +114,7 @@ const NavBar = ({ c, theme, onToggleTheme, onOpenContact }: NavBarProps) => {
                 </button>
                 <button
                     onClick={onOpenContact}
-                    style={{ fontFamily: mono, fontSize: "12px", letterSpacing: "0.6px", color: c.bg, background: c.accent, padding: "10px 20px", borderRadius: "2px", fontWeight: 600, border: "none", whiteSpace: "nowrap", transition: "opacity .2s" }}
+                    style={{ fontFamily: heading, fontSize: "12px", letterSpacing: "0.6px", color: c.bg, background: c.accent, padding: "10px 20px", borderRadius: "2px", fontWeight: 600, border: "none", whiteSpace: "nowrap", transition: "opacity .2s" }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.82")}
                     onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
                 >
