@@ -15,7 +15,7 @@ body {
 }
 
 ::selection {
-    background: #c9a463;
+    background: #00b5d8;
     color: #040814;
 }
 
@@ -25,7 +25,7 @@ button {
 
 /* ── CSS custom property for theme-reactive accent colour ── */
 :root {
-    --accent: #c9a463;
+    --accent: #00b5d8;
 }
 
 /* ── Section overline label ── */
@@ -81,7 +81,7 @@ button {
 }
 .project-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 16px 48px rgba(201,164,99,0.14);
+    box-shadow: 0 16px 48px rgba(0,181,216,0.14);
     border-color: var(--accent) !important;
 }
 
@@ -100,6 +100,22 @@ button {
 }
 .paper-row:hover {
     border-left-color: var(--accent);
+}
+
+/* ── Surf tunnel loader: light burst as the surfer exits the barrel ── */
+@keyframes tunnel-flash {
+    0%, 78%   { opacity: 0; }
+    88%       { opacity: 0.55; }
+    96%       { opacity: 0.08; }
+    100%      { opacity: 0; }
+}
+.tunnel-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 42%, #eafcff 0%, rgba(0,181,216,0.35) 38%, transparent 72%);
+    animation: tunnel-flash 2s infinite;
 }
 
 /* ── Pulse (loading states) ── */

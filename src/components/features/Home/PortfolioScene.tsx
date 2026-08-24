@@ -32,14 +32,14 @@ type ScrollState = {
 // 4 keyframes mapped to scroll 0→1
 // ndcX/ndcY: offset from screen center in NDC (-1..1)
 const DARK_STATES: ScrollState[] = [
-    { ndcX:  0.36, ndcY:  0.00, scale: 1.00, lr: 0.79, lg: 0.64, lb: 0.39 }, // amber   – hero
+    { ndcX:  0.36, ndcY:  0.00, scale: 1.00, lr: 0.00, lg: 0.71, lb: 0.85 }, // ocean   – hero
     { ndcX: -0.33, ndcY:  0.05, scale: 0.62, lr: 0.62, lg: 0.80, lb: 1.00 }, // ice     – projects
     { ndcX:  0.27, ndcY: -0.06, scale: 0.50, lr: 0.58, lg: 0.44, lb: 1.00 }, // violet  – stats
     { ndcX: -0.17, ndcY:  0.11, scale: 0.38, lr: 0.35, lg: 0.16, lb: 0.82 }, // indigo  – papers/about
 ];
 
 const LIGHT_STATES: ScrollState[] = [
-    { ndcX:  0.36, ndcY:  0.00, scale: 0.88, lr: 0.55, lg: 0.42, lb: 0.20 },
+    { ndcX:  0.36, ndcY:  0.00, scale: 0.88, lr: 0.00, lg: 0.45, lb: 0.56 },
     { ndcX: -0.33, ndcY:  0.05, scale: 0.56, lr: 0.28, lg: 0.46, lb: 0.72 },
     { ndcX:  0.27, ndcY: -0.06, scale: 0.44, lr: 0.42, lg: 0.26, lb: 0.72 },
     { ndcX: -0.17, ndcY:  0.11, scale: 0.34, lr: 0.28, lg: 0.10, lb: 0.62 },
@@ -176,7 +176,7 @@ const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
             scene.add(fillLight);
 
             // Core point light (animated colour)
-            const coreLight = new THREE.PointLight(0xc9a463, 2.8, 14);
+            const coreLight = new THREE.PointLight(0x00b5d8, 2.8, 14);
             scene.add(coreLight); // position updated each frame to follow orbGroup
 
             // ── Orb group ──────────────────────────────────────────────────────
@@ -186,8 +186,8 @@ const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
             // ── Emissive inner core (visible through transparent earth parts) ──
             const coreGeo = new THREE.SphereGeometry(0.28, 32, 32);
             const coreMat = new THREE.MeshPhysicalMaterial({
-                color:             new THREE.Color(0xc9a463),
-                emissive:          new THREE.Color(0xc9a463),
+                color:             new THREE.Color(0x00b5d8),
+                emissive:          new THREE.Color(0x00b5d8),
                 emissiveIntensity: 3.0,
                 roughness:         0.45,
                 metalness:         0.0,
@@ -268,8 +268,8 @@ const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
                 // Fallback: plain emissive sphere
                 const fallbackGeo  = new THREE.SphereGeometry(1.1, 64, 64);
                 const fallbackMat  = new THREE.MeshPhysicalMaterial({
-                    color:             0xc9a463,
-                    emissive:          0xc9a463,
+                    color:             0x00b5d8,
+                    emissive:          0x00b5d8,
                     emissiveIntensity: 1.2,
                     roughness:         0.5,
                 });
@@ -280,8 +280,8 @@ const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
             // ── Outer glow halo (BackSide) ────────────────────────────────────
             const glowGeo = new THREE.SphereGeometry(1.52, 32, 32);
             const glowMat = new THREE.MeshPhysicalMaterial({
-                color:             new THREE.Color(0xc9a463),
-                emissive:          new THREE.Color(0xc9a463),
+                color:             new THREE.Color(0x00b5d8),
+                emissive:          new THREE.Color(0x00b5d8),
                 emissiveIntensity: 0.45,
                 roughness:         1.0,
                 transparent:       true,
@@ -297,7 +297,7 @@ const PortfolioScene = ({ theme, revealed = true }: PortfolioSceneProps) => {
             const pGeo = new THREE.BufferGeometry();
             pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
             const particleMat = new THREE.PointsMaterial({
-                color:           new THREE.Color(0xffd88a),
+                color:           new THREE.Color(0xbfeefc),
                 size:            isMobile ? 0.016 : 0.020,
                 transparent:     true,
                 opacity:         theme === "dark" ? 0.68 : 0.48,

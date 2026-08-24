@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { darkColors, lightColors } from "./theme";
-import Loading from "./components/Loading";
+import SurfLoader from "./components/SurfLoader";
 import NavBar from "./components/sections/NavBar";
 import HeroSection from "./components/sections/HeroSection";
 import ProjectsSection from "./components/sections/ProjectsSection";
@@ -15,23 +15,16 @@ const App = () => {
     const [theme, setTheme] = useState<"dark" | "light">("dark");
     const [filter, setFilter] = useState<"featured" | "all">("featured");
     const [contactOpen, setContactOpen] = useState(false);
-    // loading  -> overlay covers screen, globe stays hidden below the fold
-    // exiting  -> overlay snaps upward and off (like the loader's chevrons), globe starts rising
-    // revealed -> overlay unmounted, page content slides/fades in
-    const [phase, setPhase] = useState<"loading" | "exiting" | "revealed">("loading");
-    const LOADING_EXIT_MS = 700;
+    // appLoading -> SurfLoader keeps looping, globe stays hidden below the fold
+    // revealed   -> SurfLoader has finished its exit fade, page content slides/fades in
+    const [appLoading, setAppLoading] = useState(true);
+    const [revealed, setRevealed] = useState(false);
 
     // Placeholder timer — will be replaced by the real 3D model load signal
     useEffect(() => {
-        const timer = setTimeout(() => setPhase("exiting"), 3000);
+        const timer = setTimeout(() => setAppLoading(false), 2500);
         return () => clearTimeout(timer);
     }, []);
-
-    useEffect(() => {
-        if (phase !== "exiting") return;
-        const timer = setTimeout(() => setPhase("revealed"), LOADING_EXIT_MS);
-        return () => clearTimeout(timer);
-    }, [phase]);
 
     const c = theme === "dark" ? darkColors : lightColors;
 
@@ -49,15 +42,15 @@ const App = () => {
             position: "relative",
             transition: "color .3s",
         }}>
-            <PortfolioScene theme={theme} revealed={phase !== "loading"} />
+            <PortfolioScene theme={theme} revealed={!appLoading} />
 
             {/* All content sits at z-index 1, above the fixed canvas (z-index 0) */}
             <div
                 style={{
                     position: "relative",
                     zIndex: 1,
-                    transform: phase === "revealed" ? "translateY(0)" : "translateY(48px)",
-                    opacity: phase === "revealed" ? 1 : 0,
+                    transform: revealed ? "translateY(0)" : "translateY(48px)",
+                    opacity: revealed ? 1 : 0,
                     transition: "transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease",
                 }}
             >
@@ -80,7 +73,7 @@ const App = () => {
 
             {contactOpen && <ContactModal c={c} theme={theme} onClose={() => setContactOpen(false)} />}
 
-            {phase !== "revealed" && <Loading exiting={phase === "exiting"} />}
+            <SurfLoader isLoading={appLoading} onExited={() => setRevealed(true)} />
         </div>
     );
 };
