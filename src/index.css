@@ -294,3 +294,33 @@ button {
         padding: 24px 16px !important;
     }
 }
+
+/* ── Treasure chest (last screen of the dive) ── */
+@keyframes treasure-pulse {
+    0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 0.9;  transform: translate(-50%, -50%) scale(1.08); }
+}
+.treasure-glow {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: 130%;
+    height: 110%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(255, 214, 110, 0.55), rgba(255, 214, 110, 0) 70%);
+    pointer-events: none;
+    animation: treasure-pulse 3.2s ease-in-out infinite;
+}
+.treasure-button {
+    box-shadow: 0 0 0 4px rgba(255, 223, 122, 0.25), 0 0 28px rgba(255, 210, 90, 0.75);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.treasure-button:hover,
+.treasure-button:focus-visible {
+    transform: translate(-50%, -50%) scale(1.06) !important;
+    box-shadow: 0 0 0 6px rgba(255, 223, 122, 0.35), 0 0 40px rgba(255, 210, 90, 0.95);
+    outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .treasure-glow { animation: none; }
+}

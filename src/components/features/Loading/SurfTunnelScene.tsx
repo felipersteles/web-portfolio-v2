@@ -30,20 +30,19 @@ function interpBeats(values: number[], t: number) {
 }
 
 // ── Barrel geometry ─────────────────────────────────────────────────────
-// The wall wraps all the way under the camera now (a full U/C-shaped
-// channel: floor → near wall → ceiling/lip), not just the top and one side —
-// it rises from a continuous floor, curls up and over to form the ceiling,
-// and only stops short of closing on the far/lip side, which is the open
-// water/exit. As the camera travels deeper toward the exit, the arc's sweep
-// shrinks from that lip end (less ceiling overhead) and its radius grows, so
-// the barrel visibly opens up — the floor stays put throughout.
-const ARC_CENTER_X   = 0.5;   // wall's arc is centred off to one side of the camera path
-const ARC_CENTER_Y   = 0.2;
-const ANGLE_START_DEG = -100;  // reaches under the camera — the floor of the channel
-const SWEEP_START_DEG = 360;   // total wrap at the deepest point of the barrel (floor to lip)
-const SWEEP_END_DEG   = 300;   // total wrap right at the exit — ceiling opens, floor remains
-const RADIUS_START = 2.0;
-const RADIUS_END   = 3.3;
+// A real barrel is not a closed tube: the face rises from flat water on one
+// side (+x), curls over the top, and the lip pitches down on the other side
+// as a curtain that never reaches the water — that gap is where daylight and
+// open ocean show through. The arc's centre is lifted with its radius so its
+// bottom always sits on the same flat trough (FLOOR_Y); as the camera nears
+// the exit the curtain retracts (smaller sweep) and the barrel opens up.
+const ARC_CENTER_X    = 0.3;
+const FLOOR_Y         = -0.55;
+const ANGLE_START_DEG = -90;   // tangent to the trough, right under the face
+const SWEEP_START_DEG = 312;   // lip curtain hangs well below horizontal, close to the water
+const SWEEP_END_DEG   = 235;   // at the exit the lip only reaches ~55° above horizontal
+const RADIUS_START = 1.7;
+const RADIUS_END   = 2.9;
 const TOTAL_LENGTH = 36;
 
 // ── Board nose overlay ──────────────────────────────────────────────────
@@ -68,7 +67,7 @@ function sliceShape(u: number) {
     const radius = lerp(RADIUS_START, RADIUS_END, e);
     const angleStart = ANGLE_START_DEG * (Math.PI / 180);
     const angleEnd = angleStart + sweepDeg * (Math.PI / 180);
-    return { angleStart, angleEnd, radius };
+    return { angleStart, angleEnd, radius, centerY: FLOOR_Y + radius };
 }
 
 // ── Procedural value noise / FBM — no textures/dependencies, just math,
@@ -169,6 +168,26 @@ function makeDotTexture(THREE: any): any {
     return tex;
 }
 
+// Screen-space sky behind everything: what the gap under the lip and the
+// exit open onto. Bright band at the horizon, deeper blue overhead.
+function makeSkyTexture(THREE: any): any {
+    const canvas = document.createElement("canvas");
+    canvas.width = 4;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d")!;
+    const grad = ctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, "#164d70");
+    grad.addColorStop(0.45, "#5fb6d6");
+    grad.addColorStop(0.58, "#d4f4ff");
+    grad.addColorStop(0.62, "#3e9ab8");
+    grad.addColorStop(1, "#0d3a52");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 4, 256);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
 const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -205,10 +224,10 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
             // hits no geometry, it must show bright open water/sky, not the
             // renderer's black clear colour — otherwise the opening reads as
             // a solid black hole instead of daylight beyond the wave.
-            scene.background = new THREE.Color(0x14415c);
+            scene.background = makeSkyTexture(THREE);
             // Fog fades to a dark petrol blue, not flat black, so distant wall
             // stays a readable dark blue instead of dissolving into the void.
-            scene.fog = new THREE.FogExp2(0x040e18, 0.038);
+            scene.fog = new THREE.FogExp2(0x0a2a3d, 0.03);
 
             const camera = new THREE.PerspectiveCamera(85, w / h, 0.05, TOTAL_LENGTH + 18);
 
@@ -234,19 +253,22 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
             // finally pale cyan foam at the lip.
             const deepColor = new THREE.Color(0x0a2338);
             const midColor = new THREE.Color(0x1f6f8f);
+            // Where the lip thins out, sunlight passes through the water and
+            // it turns a glassy green-teal — the single strongest "wave" cue.
+            const glassColor = new THREE.Color(0x3fc9bb);
             const foamColor = new THREE.Color(0xdff6ff);
 
             let vi = 0;
             for (let i = 0; i <= LEN_SEG; i++) {
                 const u = i / LEN_SEG;
                 const z = -u * TOTAL_LENGTH;
-                const { angleStart, angleEnd, radius } = sliceShape(u);
+                const { angleStart, angleEnd, radius, centerY } = sliceShape(u);
                 for (let k = 0; k <= ARC_SEG; k++) {
                     const v = k / ARC_SEG;
                     const angle = lerp(angleStart, angleEnd, v);
                     const ca = Math.cos(angle), sa = Math.sin(angle);
                     const x = ARC_CENTER_X + ca * radius;
-                    const y = ARC_CENTER_Y + sa * radius;
+                    const y = centerY + sa * radius;
                     restPos[vi * 3 + 0] = x;
                     restPos[vi * 3 + 1] = y;
                     restPos[vi * 3 + 2] = z;
@@ -264,6 +286,8 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                     const thickness = fbm2D(u * 2.1 + 1.3, v * 1.7 + 5.5, 3);
                     const uMix = THREE.MathUtils.clamp(u * 0.5 + v * 0.22 + thickness * 0.3 + 0.08, 0, 1);
                     const base = deepColor.clone().lerp(midColor, uMix);
+                    const glass = smoothstep((v - 0.42) / 0.38) * (0.55 + 0.3 * thickness);
+                    base.lerp(glassColor, glass * 0.75);
                     // Foam clings to the lip as uneven patches/clusters, not a clean band.
                     const lipMix = Math.max(0, (v - 0.7) / 0.3);
                     const patch = fbm2D(u * 14 + 4.2, v * 10 + 1.7, 3);
@@ -309,13 +333,43 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                 // Just enough built-in glow that the water is never truly
                 // unlit and crushes to black — but dim, so the mass still
                 // reads as dense, dark water rather than glowing from within.
-                emissive: new THREE.Color(0x051420),
-                emissiveIntensity: 0.55,
+                emissive: new THREE.Color(0x0b2c44),
+                emissiveIntensity: 0.7,
                 side: THREE.DoubleSide,
                 fog: true,
             });
+            // Vertex colour also feeds emission: the dark base stays dark, but the
+            // glassy lip and foam glow as if sunlight were passing through them.
+            waveMat.onBeforeCompile = (shader: any) => {
+                shader.fragmentShader = shader.fragmentShader.replace(
+                    "#include <emissivemap_fragment>",
+                    "#include <emissivemap_fragment>\n\ttotalEmissiveRadiance += vColor.rgb * vColor.rgb * 0.45;",
+                );
+            };
             const waveMesh = new THREE.Mesh(waveGeo, waveMat);
             scene.add(waveMesh);
+
+            // ── Trough — the flat water the barrel stands on. It runs from
+            // the base of the face out under the curtain to open ocean, so
+            // the gap below the lip shows a horizon instead of a void. ──
+            const troughNormal = normalTex.clone();
+            troughNormal.repeat.set(10, 14);
+            troughNormal.needsUpdate = true;
+            const troughWidth = 44;
+            const troughGeo = new THREE.PlaneGeometry(troughWidth, TOTAL_LENGTH + 24, 1, 1);
+            troughGeo.rotateX(-Math.PI / 2);
+            troughGeo.translate(ARC_CENTER_X - troughWidth / 2, FLOOR_Y + 0.02, -(TOTAL_LENGTH + 24) / 2 + 2);
+            const troughMat = new THREE.MeshStandardMaterial({
+                color: 0x1b6a86,
+                roughness: 0.35,
+                metalness: 0.0,
+                normalMap: troughNormal,
+                normalScale: new THREE.Vector2(0.4, 0.4),
+                emissive: new THREE.Color(0x072233),
+                emissiveIntensity: 0.6,
+                fog: true,
+            });
+            scene.add(new THREE.Mesh(troughGeo, troughMat));
 
             // ── Lights — the wall must stay readable everywhere (never pure
             // black), while the exit ahead still reads as clearly the
@@ -390,12 +444,12 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                 const place = (i: number, fallT: number) => {
                     const u = fU[i];
                     const v = Math.min(0.99, fV0[i] + (1 - fV0[i]) * fallT * 0.6);
-                    const { angleStart, angleEnd, radius } = sliceShape(u);
+                    const { angleStart, angleEnd, radius, centerY } = sliceShape(u);
                     const angle = lerp(angleStart, angleEnd, v);
                     const r = radius * fJitter[i] * (1 - fallT * 0.12);
                     return [
                         ARC_CENTER_X + Math.cos(angle) * r,
-                        ARC_CENTER_Y + Math.sin(angle) * r - fallT * 0.35,
+                        centerY + Math.sin(angle) * r - fallT * 0.35,
                         -u * TOTAL_LENGTH,
                     ];
                 };
@@ -452,7 +506,9 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                     // High amplitude throughout, including the floor/base — this
                     // is meant to read as heavy folds of a real wave, not a
                     // smooth pipe with a bit of texture near the top.
-                    const amp = 0.16 * (0.55 + 0.7 * Math.max(0, v - 0.05));
+                    // Faded out right at the base so the face meets the flat
+                    // trough cleanly instead of bobbing through it.
+                    const amp = 0.16 * (0.55 + 0.7 * Math.max(0, v - 0.05)) * smoothstep(v / 0.12);
                     // Every term mixes both angle and length so nothing collapses
                     // into a pure "ring" or pure "stripe" — deformation direction
                     // stays blended across the surface, not axis-aligned.
@@ -528,8 +584,12 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                     // Scroll the baked noise maps independently — breaks up
                     // specular highlights and foam patches so they drift and
                     // reshape instead of reading as one static texture.
-                    normalTex.offset.set(clock * 0.02, clock * -0.015);
-                    roughTex.offset.set(clock * -0.011, clock * 0.017);
+                    // The v axis runs around the arc, so a steady negative
+                    // v-offset streams the pattern up the face and over the
+                    // lip — water climbing the wave instead of a still pipe.
+                    normalTex.offset.set(clock * 0.02, clock * -0.22);
+                    roughTex.offset.set(clock * -0.011, clock * -0.16);
+                    troughNormal.offset.set(clock * 0.03, clock * 0.25);
 
                     for (const tier of foamTiers) {
                         const posArr = tier.geo.attributes.position.array as Float32Array;
@@ -577,6 +637,10 @@ const SurfTunnelScene = ({ reducedMotion }: SurfTunnelSceneProps) => {
                 cancelAnimationFrame(rafId);
                 waveGeo.dispose();
                 waveMat.dispose();
+                troughGeo.dispose();
+                troughMat.dispose();
+                troughNormal.dispose();
+                (scene.background as any)?.dispose?.();
                 normalTex.dispose();
                 roughTex.dispose();
                 foamTiers.forEach((tier) => { tier.geo.dispose(); tier.mat.dispose(); });
