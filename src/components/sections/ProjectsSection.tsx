@@ -8,10 +8,24 @@ interface ProjectsSectionProps {
     onFilterChange: (f: "featured" | "all") => void;
 }
 
-// ── Preview dimensions ─────────────────────────────────────────────────────
-const IFRAME_W = 1280;
-const IFRAME_H = 800;
+// ── Poster dimensions ──────────────────────────────────────────────────────
+const POSTER_RATIO = 0.5;
 const CARD_GAP = 28;
+
+// Each project gets a stable hue so cards stay distinct without loading the live site
+const posterBackground = (id: number, accent: string) => {
+    const hue = (id * 47 + 190) % 360;
+    return `radial-gradient(120% 90% at 85% 10%, ${accent}55 0%, transparent 55%),
+        linear-gradient(135deg, hsl(${hue} 55% 22%) 0%, hsl(${(hue + 40) % 360} 60% 10%) 100%)`;
+};
+
+const hostOf = (url: string) => {
+    try {
+        return new URL(url).host.replace(/^www\./, "");
+    } catch {
+        return url;
+    }
+};
 
 const getLayout = () => {
     if (typeof window === "undefined") return { cardW: 500, trackPad: 56 };
@@ -23,10 +37,10 @@ const getLayout = () => {
 
 // ── Single card ────────────────────────────────────────────────────────────
 const ProjectCard = ({
-    p, c, isActive, cardW, scale, previewH,
+    p, c, isActive, cardW, previewH,
 }: {
     p: ProjectDTO; c: Colors; isActive: boolean;
-    cardW: number; scale: number; previewH: number;
+    cardW: number; previewH: number;
 }) => (
     <div
         className="carousel-card"
@@ -46,54 +60,42 @@ const ProjectCard = ({
                 : "0 4px 24px rgba(0,0,0,0.18)",
         }}
     >
-        {/* ── Live preview ────────────────────────────────────────────── */}
+        {/* ── Poster — generated from the project itself, no network cost ── */}
         <div
             style={{
                 position: "relative",
                 height: `${previewH}px`,
                 overflow: "hidden",
                 flexShrink: 0,
-                background: c.surfaceAlt,
+                background: posterBackground(p.id, c.accent),
             }}
         >
-            {/* Fallback placeholder (shown while iframe loads or if blocked) */}
             <div
+                aria-hidden="true"
                 style={{
                     position: "absolute",
                     inset: 0,
                     display: "flex",
-                    alignItems: "center",
+                    flexDirection: "column",
                     justifyContent: "center",
-                    fontFamily: mono,
-                    fontSize: "12px",
-                    letterSpacing: "1.5px",
-                    color: c.muted,
-                    opacity: 0.35,
-                    textTransform: "uppercase",
+                    padding: "0 28px",
+                    gap: "10px",
                 }}
             >
-                {p.name}
+                <span style={{
+                    fontFamily: serif,
+                    fontSize: "clamp(34px, 7vw, 52px)",
+                    fontWeight: 800,
+                    letterSpacing: "-1px",
+                    lineHeight: 1,
+                    color: "rgba(255,255,255,0.92)",
+                }}>
+                    {p.name}
+                </span>
+                <span style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "1.5px", color: "rgba(255,255,255,0.6)" }}>
+                    {hostOf(p.demo)}
+                </span>
             </div>
-
-            {/* Scaled live iframe — 1280×800 desktop viewport shrunk to card width */}
-            <iframe
-                src={p.demo}
-                loading="lazy"
-                title={`${p.name} live preview`}
-                tabIndex={-1}
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: `${IFRAME_W}px`,
-                    height: `${IFRAME_H}px`,
-                    transform: `scale(${scale})`,
-                    transformOrigin: "top left",
-                    border: "none",
-                    pointerEvents: "none",
-                    display: "block",
-                }}
-            />
 
             {/* Bottom gradient — blends preview into card body */}
             <div
@@ -229,8 +231,7 @@ const ProjectsSection = ({ c, filter, onFilterChange }: ProjectsSectionProps) =>
     const sectionRef = useRef<HTMLElement>(null);
 
     const { cardW, trackPad } = layout;
-    const scale    = cardW / IFRAME_W;
-    const previewH = Math.round(IFRAME_H * scale);
+    const previewH = Math.round(cardW * POSTER_RATIO);
 
     useEffect(() => {
         const onResize = () => setLayout(getLayout());
@@ -388,7 +389,7 @@ const ProjectsSection = ({ c, filter, onFilterChange }: ProjectsSectionProps) =>
             >
                 {filtered.map((p, i) => (
                     <ProjectCard key={p.id} p={p} c={c} isActive={i === activeIdx}
-                        cardW={cardW} scale={scale} previewH={previewH} />
+                        cardW={cardW} previewH={previewH} />
                 ))}
             </div>
 

@@ -23,10 +23,10 @@ export const projects: ProjectDTO[] = [
     },
     {
         id: 13,
-        name: "Ajude Aqui",
-        description: "A platform connecting people who want to help with those in need.",
+        name: "Venimin",
+        description: "Link-in-bio pages and a URL shortener with click analytics, in one place.",
         tags: ["react", "nextjs", "typescript"],
-        demo: "https://www.ajudeaqui.com/",
+        demo: "https://venimin.com.br/",
         star: true,
     },
     {

@@ -21,7 +21,7 @@ export const darkColors: Colors = {
     navBg: "rgba(4,8,20,0.82)",
     chipBg: "rgba(0,181,216,0.12)",
     surfaceAlt: "rgba(255,255,255,0.03)",
-    sectionBg: "rgba(4,8,20,0.80)",
+    sectionBg: "rgba(4,8,20,0.55)",
 };
 
 export const lightColors: Colors = {
@@ -34,7 +34,7 @@ export const lightColors: Colors = {
     navBg: "rgba(245,242,237,0.88)",
     chipBg: "rgba(0,118,143,0.12)",
     surfaceAlt: "rgba(0,0,0,0.025)",
-    sectionBg: "rgba(245,242,237,0.90)",
+    sectionBg: "rgba(245,242,237,0.78)",
 };
 
 export const mono = "'IBM Plex Mono', monospace";

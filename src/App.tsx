@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { darkColors, lightColors } from "./theme";
 import SurfLoader from "./components/SurfLoader";
 import NavBar from "./components/sections/NavBar";
@@ -7,9 +7,9 @@ import ProjectsSection from "./components/sections/ProjectsSection";
 import StatsSection from "./components/sections/StatsSection";
 import PapersSection from "./components/sections/PapersSection";
 import AboutSection from "./components/sections/AboutSection";
-import FooterSection from "./components/sections/FooterSection";
+import TreasureSection from "./components/sections/TreasureSection";
 import ContactModal from "./components/sections/ContactModal";
-import PortfolioScene from "./components/features/Home/PortfolioScene";
+import OceanScene from "./components/features/Home/OceanScene";
 
 const App = () => {
     const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -20,9 +20,10 @@ const App = () => {
     const [appLoading, setAppLoading] = useState(true);
     const [revealed, setRevealed] = useState(false);
 
-    // Placeholder timer — will be replaced by the real 3D model load signal
+    // The ocean scene reports when its models are in; the timer is a safety net for slow networks
+    const onSceneReady = useCallback(() => setAppLoading(false), []);
     useEffect(() => {
-        const timer = setTimeout(() => setAppLoading(false), 2500);
+        const timer = setTimeout(() => setAppLoading(false), 8000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -42,7 +43,7 @@ const App = () => {
             position: "relative",
             transition: "color .3s",
         }}>
-            <PortfolioScene theme={theme} revealed={!appLoading} />
+            <OceanScene theme={theme} revealed={!appLoading} onReady={onSceneReady} />
 
             {/* All content sits at z-index 1, above the fixed canvas (z-index 0) */}
             <div
@@ -65,7 +66,7 @@ const App = () => {
                 <StatsSection c={c} />
                 <PapersSection c={c} />
                 <AboutSection c={c} />
-                <FooterSection c={c} />
+                <TreasureSection onOpenContact={() => setContactOpen(true)} />
             </div>
 
             {/* Film grain overlay — adds cinematic texture over the full page */}

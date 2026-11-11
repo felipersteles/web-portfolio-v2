@@ -59,7 +59,7 @@ const HeroSection = ({ c }: HeroSectionProps) => {
                 position: "relative",
             }}
         >
-            {/* Text block — left-aligned; orb (fixed canvas) occupies the right */}
+            {/* Text block — left-aligned; the island (fixed canvas) sits on the right */}
             <div style={{ maxWidth: "580px", position: "relative", zIndex: 2 }}>
 
                 {/* Overline label */}
@@ -181,7 +181,7 @@ const HeroSection = ({ c }: HeroSectionProps) => {
                         textTransform: "uppercase",
                         opacity: 0.55,
                     }}>
-                        Scroll to explore
+                        Scroll to dive
                     </div>
                 </div>
             </div>
