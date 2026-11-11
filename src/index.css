@@ -295,32 +295,24 @@ button {
     }
 }
 
-/* ── Treasure chest (last screen of the dive) ── */
-@keyframes treasure-pulse {
-    0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
-    50%      { opacity: 0.9;  transform: translate(-50%, -50%) scale(1.08); }
-}
-.treasure-glow {
-    position: absolute;
-    left: 50%;
-    top: 42%;
-    width: 130%;
-    height: 110%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(closest-side, rgba(255, 214, 110, 0.55), rgba(255, 214, 110, 0) 70%);
-    pointer-events: none;
-    animation: treasure-pulse 3.2s ease-in-out infinite;
-}
+/* ── Treasure button (last screen of the dive) ── */
 .treasure-button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #2e1a0b;
+    background: linear-gradient(180deg, #ffe38a 0%, #f2b93b 100%);
+    border: 1px solid #a87a22;
+    border-radius: 999px;
+    padding: 13px 26px;
     box-shadow: 0 0 0 4px rgba(255, 223, 122, 0.25), 0 0 28px rgba(255, 210, 90, 0.75);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .treasure-button:hover,
 .treasure-button:focus-visible {
-    transform: translate(-50%, -50%) scale(1.06) !important;
+    transform: scale(1.06);
     box-shadow: 0 0 0 6px rgba(255, 223, 122, 0.35), 0 0 40px rgba(255, 210, 90, 0.95);
     outline: none;
-}
-@media (prefers-reduced-motion: reduce) {
-    .treasure-glow { animation: none; }
 }

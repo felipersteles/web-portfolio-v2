@@ -4,12 +4,17 @@ import { useEffect, useRef } from "react";
 const treeUrl   = new URL("../../../assets/models/tree.gltf",   import.meta.url).href;
 const shipUrl   = new URL("../../../assets/models/ship.gltf",   import.meta.url).href;
 const wizardUrl = new URL("../../../assets/models/wizard.gltf", import.meta.url).href;
+const chestUrl  = new URL("../../../assets/models/chest.gltf",  import.meta.url).href;
 
 interface OceanSceneProps {
     theme: "dark" | "light";
     revealed?: boolean;
     /** Fires once the models have settled (loaded or failed) and the first frame is drawn. */
     onReady?: () => void;
+    /** Bump to play the chest animation from outside (e.g. a keyboard-accessible button). */
+    openSignal?: number;
+    /** Fires partway through the chest animation, when the contact page should start rising. */
+    onChestOpen?: () => void;
 }
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -66,6 +71,12 @@ const SHARKS = [
     { y: -45, rx: 12, rz: 6, z: -14, speed: 0.09, scale: 1.8, phase: 4 },
 ];
 const JELLY_COUNT = 7;
+
+// ── Treasure chest on the sand, in front of the final camera position ────
+const CHEST_POS = { x: 0, z: 2.5 };
+const COIN_COUNT = 80;
+const CHEST_OPEN_AT = 1.0; // s into the animation when the contact page is told to rise
+const CHEST_ANIM_END = 2.2;
 
 // Low-poly fish, nose along +Z so Object3D.lookAt points it where it swims
 function makeFishGeometry(THREE: any) {
@@ -149,6 +160,27 @@ function makeJelly(THREE: any, color: number) {
     return group;
 }
 
+// Round gold coin with a highlight — gl.POINTS are hard squares without a sprite
+function makeCoinTexture(THREE: any) {
+    const size = 64;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const g = ctx.createRadialGradient(size * 0.38, size * 0.35, 2, size / 2, size / 2, size / 2);
+    g.addColorStop(0, "#fff6c8");
+    g.addColorStop(0.45, "#ffd45e");
+    g.addColorStop(0.9, "#b8862b");
+    g.addColorStop(1, "rgba(184,134,43,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
 // Vertical soft streak used for the sun shafts just under the surface
 function makeRayTexture(THREE: any) {
     const canvas = document.createElement("canvas");
@@ -173,14 +205,21 @@ function makeRayTexture(THREE: any) {
     return tex;
 }
 
-const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
+const OceanScene = ({ theme, revealed = true, onReady, openSignal = 0, onChestOpen }: OceanSceneProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const themeRef = useRef(theme);
     const revealTimeRef = useRef<number | null>(null);
     const onReadyRef = useRef(onReady);
+    const onChestOpenRef = useRef(onChestOpen);
+    // Set by the scene once it's built; falls back to opening straight away
+    const startChestRef = useRef<() => void>(() => onChestOpenRef.current?.());
 
     useEffect(() => { themeRef.current = theme; }, [theme]);
     useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
+    useEffect(() => { onChestOpenRef.current = onChestOpen; }, [onChestOpen]);
+    useEffect(() => {
+        if (openSignal > 0) startChestRef.current();
+    }, [openSignal]);
     useEffect(() => {
         if (revealed && revealTimeRef.current === null) revealTimeRef.current = performance.now();
     }, [revealed]);
@@ -198,12 +237,16 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
 
         const scroll = { target: 0, current: 0 };
         const mouse = { tx: 0, ty: 0, cx: 0, cy: 0 };
+        const pointer = { x: 0, y: 0, active: false }; // NDC, for chest hover/click
 
         const onScroll = () => {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             scroll.target = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
         };
         const onMouseMove = (e: MouseEvent) => {
+            pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+            pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            pointer.active = true;
             if (reducedMotion || isMobile) return;
             mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
             mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -258,21 +301,39 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
             scene.add(new THREE.Mesh(surfaceGeo, surfaceMat));
 
             // ── Island: sand cap above water, rocky base below it ───────
+            // The flat top sits at y≈0.75, above the tallest wave crest (~0.5),
+            // and is wide enough that the wizard and tree stand on it, not the slope.
+            const ISLAND_TOP = 0.6; // local y of the sand top
             const island = new THREE.Group();
-            island.position.set(isMobile ? 1.6 : 5.2, -0.3, isMobile ? -11 : -9);
+            island.position.set(isMobile ? 1.6 : 5.2, 0.15, isMobile ? -11 : -9);
             scene.add(island);
             const sandMat = new THREE.MeshStandardMaterial({ color: 0xdeb887, roughness: 1 });
-            island.add(new THREE.Mesh(new THREE.CylinderGeometry(1.4, 3.5, 0.5, 32), sandMat));
+            island.add(new THREE.Mesh(new THREE.CylinderGeometry(2.6, 3.6, ISLAND_TOP * 2, 32), sandMat));
             const rockMat = new THREE.MeshStandardMaterial({ color: 0x3e3a32, roughness: 1, flatShading: true });
-            const islandBase = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 4.6, 8, 14, 3), rockMat);
-            islandBase.position.y = -4.2;
+            const islandBase = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 4.6, 8, 14, 3), rockMat);
+            islandBase.position.y = -4.5;
             island.add(islandBase);
 
-            // Sails further out than the island, so it never sits on top of it
+            // Sails further out than the island, seen side-on, bow aimed at it.
+            // The model's bow is its -Z, so yaw = atan2(-dx, -dz) points it along (dx, dz).
             const SHIP_X = isMobile ? -1.2 : -1.4;
+            const SHIP_Z = isMobile ? -15 : -13;
+            const shipDir = new THREE.Vector2(island.position.x - SHIP_X, island.position.z - SHIP_Z).normalize();
             const shipPivot = new THREE.Group();
-            shipPivot.position.set(SHIP_X, 0.1, isMobile ? -15 : -13);
+            shipPivot.position.set(SHIP_X, 0.1, SHIP_Z);
+            shipPivot.rotation.y = Math.atan2(-shipDir.x, -shipDir.y);
             scene.add(shipPivot);
+
+            const chestPivot = new THREE.Group();
+            chestPivot.position.set(CHEST_POS.x, SEABED_Y - 0.05, CHEST_POS.z);
+            chestPivot.rotation.y = -0.25;
+            chestPivot.scale.setScalar(isMobile ? 1.5 : 1.3);
+            scene.add(chestPivot);
+            let chestModel: any = null;
+            // Gold glow that hints "click me", flares when the chest opens
+            const chestGlow = new THREE.PointLight(0xffc95a, 8, 9, 1.5);
+            chestGlow.position.set(CHEST_POS.x, SEABED_Y + 1.6, CHEST_POS.z + 0.8);
+            scene.add(chestGlow);
 
             // ── Models — none of them block the scene; each failure just leaves a gap ──
             const dracoLoader = new DRACOLoader();
@@ -285,12 +346,12 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
                 loader.loadAsync(treeUrl).then((gltf: any) => {
                     const tree = gltf.scene;
                     tree.scale.setScalar(0.5);
-                    tree.position.set(0.6, 0.25, -0.6);
+                    tree.position.set(0.7, ISLAND_TOP, -0.7);
                     island.add(tree);
                 }),
                 loader.loadAsync(wizardUrl).then((gltf: any) => {
                     const wizard = gltf.scene;
-                    wizard.position.set(-1.6, 0.25, 1.2);
+                    wizard.position.set(-1.3, ISLAND_TOP, 1.0);
                     wizard.rotation.y = -Math.PI / 7;
                     island.add(wizard);
                     const clip = gltf.animations.find((a: any) => a.name === "Waiting") ?? gltf.animations[0];
@@ -302,6 +363,11 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
                 loader.loadAsync(shipUrl).then((gltf: any) => {
                     gltf.scene.scale.setScalar(0.5);
                     shipPivot.add(gltf.scene);
+                }),
+                loader.loadAsync(chestUrl).then((gltf: any) => {
+                    // The model's origin is at its base, so it sits straight on the sand
+                    chestPivot.add(gltf.scene);
+                    chestModel = gltf.scene;
                 }),
             ];
 
@@ -436,6 +502,59 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
                 return { geo, rest: new Float32Array(geo.attributes.position.array), h, phase: Math.random() * 6 };
             });
 
+            // ── Coins thrown out when the chest opens ────────────────────
+            const coinPos = new Float32Array(COIN_COUNT * 3);
+            const coinVel = new Float32Array(COIN_COUNT * 3);
+            const coinGeo = new THREE.BufferGeometry();
+            coinGeo.setAttribute("position", new THREE.BufferAttribute(coinPos, 3));
+            const coinMat = new THREE.PointsMaterial({ map: makeCoinTexture(THREE), size: 0.22, transparent: true, alphaTest: 0.05, opacity: 0, depthWrite: false, fog: false });
+            const coins = new THREE.Points(coinGeo, coinMat);
+            coins.frustumCulled = false; // bounds were computed while every coin sat at the origin
+            scene.add(coins);
+            const throwCoins = () => {
+                for (let i = 0; i < COIN_COUNT; i++) {
+                    coinPos[i * 3 + 0] = CHEST_POS.x + (Math.random() - 0.5) * 0.6;
+                    coinPos[i * 3 + 1] = SEABED_Y + 1.1;
+                    coinPos[i * 3 + 2] = CHEST_POS.z + (Math.random() - 0.5) * 0.4;
+                    const a = Math.random() * Math.PI * 2;
+                    const spread = 0.6 + Math.random() * 1.6;
+                    coinVel[i * 3 + 0] = Math.cos(a) * spread;
+                    coinVel[i * 3 + 1] = 3 + Math.random() * 3;
+                    coinVel[i * 3 + 2] = Math.sin(a) * spread + 0.8; // fan out toward the camera
+                }
+                coinGeo.attributes.position.needsUpdate = true;
+            };
+
+            // ── Chest interaction: hover glow, click/tap to open ────────
+            const raycaster = new THREE.Raycaster();
+            const ndc = new THREE.Vector2();
+            let chestAnimStart = -1;
+            let chestOpened = false;
+            let hovering = false;
+            const chestInView = () => chestModel !== null && camera.position.y < SEABED_Y + 15;
+            const hitsChest = (x: number, y: number) => {
+                ndc.set(x, y);
+                raycaster.setFromCamera(ndc, camera);
+                return raycaster.intersectObject(chestPivot, true).length > 0;
+            };
+            const startChest = () => {
+                if (chestAnimStart >= 0) return;
+                if (reducedMotion || !chestModel) {
+                    onChestOpenRef.current?.();
+                    return;
+                }
+                chestAnimStart = performance.now();
+                chestOpened = false;
+                throwCoins();
+            };
+            startChestRef.current = startChest;
+            const onClick = (e: MouseEvent) => {
+                if ((e.target as Element | null)?.closest("a, button, input, textarea, [role=dialog]")) return;
+                if (!chestInView()) return;
+                if (hitsChest((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1)) startChest();
+            };
+            window.addEventListener("click", onClick);
+
             const onResize = () => {
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -504,10 +623,13 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
                 }
 
                 mixer?.update(reducedMotion ? 0 : dt);
-                shipPivot.position.x = SHIP_X + Math.sin(t * 0.25) * 1.2;
+                // Surges toward the island and eases back a little, never sailing stern-first
+                const surge = (Math.sin(t * 0.3) * 0.5 + 0.5) * 0.6;
+                shipPivot.position.x = SHIP_X + shipDir.x * surge;
+                shipPivot.position.z = SHIP_Z + shipDir.y * surge;
                 shipPivot.position.y = 0.1 + Math.sin(t * 1.2) * 0.06;
-                shipPivot.rotation.z = Math.cos(t * 0.5) * 0.05;
-                shipPivot.rotation.x = Math.sin(t * 0.4) * 0.03;
+                shipPivot.rotation.z = Math.cos(t * 0.5) * 0.05; // roll
+                shipPivot.rotation.x = Math.sin(t * 0.4) * 0.03; // pitch
 
                 // Fish follow their school's leader along its loop, each a bit behind
                 for (let i = 0; i < fishTotal; i++) {
@@ -573,6 +695,41 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
                     }
                 }
 
+                // Chest: hover cursor, idle glow, then shake → hop → flare + coins
+                const nowHover = !isMobile && pointer.active && chestAnimStart < 0 && chestInView() && hitsChest(pointer.x, pointer.y);
+                if (nowHover !== hovering) {
+                    hovering = nowHover;
+                    document.documentElement.style.cursor = hovering ? "pointer" : "";
+                }
+                let glow = 7 + Math.sin(t * 2.2) * 2 + (hovering ? 8 : 0);
+                chestPivot.position.y = SEABED_Y - 0.05;
+                chestPivot.rotation.z = 0;
+                if (chestAnimStart >= 0) {
+                    const e = (performance.now() - chestAnimStart) / 1000;
+                    if (e < 0.4) chestPivot.rotation.z = Math.sin(e * 55) * 0.09 * (1 - e / 0.4);
+                    if (e > 0.25 && e < 0.85) chestPivot.position.y += Math.sin(((e - 0.25) / 0.6) * Math.PI) * 0.7;
+                    if (e > 0.3) glow += 70 * Math.exp(-(e - 0.3) * 2.5);
+                    if (e > 0.3) {
+                        coinMat.opacity = clamp(1 - (e - 1.4) / 0.8, 0, 1);
+                        for (let i = 0; i < COIN_COUNT; i++) {
+                            coinVel[i * 3 + 1] -= 7 * dt;
+                            coinPos[i * 3 + 0] += coinVel[i * 3 + 0] * dt;
+                            coinPos[i * 3 + 1] = Math.max(SEABED_Y + 0.05, coinPos[i * 3 + 1] + coinVel[i * 3 + 1] * dt);
+                            coinPos[i * 3 + 2] += coinVel[i * 3 + 2] * dt;
+                        }
+                        coinGeo.attributes.position.needsUpdate = true;
+                    }
+                    if (!chestOpened && e > CHEST_OPEN_AT) {
+                        chestOpened = true;
+                        onChestOpenRef.current?.();
+                    }
+                    if (e > CHEST_ANIM_END) {
+                        chestAnimStart = -1;
+                        coinMat.opacity = 0;
+                    }
+                }
+                chestGlow.intensity = glow;
+
                 renderer.render(scene, camera);
             };
 
@@ -604,6 +761,8 @@ const OceanScene = ({ theme, revealed = true, onReady }: OceanSceneProps) => {
 
             cleanup = () => {
                 window.removeEventListener("resize", onResize);
+                window.removeEventListener("click", onClick);
+                document.documentElement.style.cursor = "";
                 document.removeEventListener("visibilitychange", onVisibility);
                 cancelAnimationFrame(rafId);
                 scene.traverse((obj: any) => {
