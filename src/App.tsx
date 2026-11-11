@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { AnimatePresence } from "framer-motion";
 import { darkColors, lightColors } from "./theme";
 import SurfLoader from "./components/SurfLoader";
 import NavBar from "./components/sections/NavBar";
@@ -15,6 +16,9 @@ const App = () => {
     const [theme, setTheme] = useState<"dark" | "light">("dark");
     const [filter, setFilter] = useState<"featured" | "all">("featured");
     const [contactOpen, setContactOpen] = useState(false);
+    // Bumped by the treasure button; the ocean scene plays the chest animation, then opens contact
+    const [chestSignal, setChestSignal] = useState(0);
+    const openContact = useCallback(() => setContactOpen(true), []);
     // appLoading -> SurfLoader keeps looping, globe stays hidden below the fold
     // revealed   -> SurfLoader has finished its exit fade, page content slides/fades in
     const [appLoading, setAppLoading] = useState(true);
@@ -43,7 +47,7 @@ const App = () => {
             position: "relative",
             transition: "color .3s",
         }}>
-            <OceanScene theme={theme} revealed={!appLoading} onReady={onSceneReady} />
+            <OceanScene theme={theme} revealed={!appLoading} onReady={onSceneReady} openSignal={chestSignal} onChestOpen={openContact} />
 
             {/* All content sits at z-index 1, above the fixed canvas (z-index 0) */}
             <div
@@ -66,13 +70,15 @@ const App = () => {
                 <StatsSection c={c} />
                 <PapersSection c={c} />
                 <AboutSection c={c} />
-                <TreasureSection onOpenContact={() => setContactOpen(true)} />
+                <TreasureSection onOpenChest={() => setChestSignal((n) => n + 1)} />
             </div>
 
             {/* Film grain overlay — adds cinematic texture over the full page */}
             <div aria-hidden="true" className="grain-overlay" />
 
-            {contactOpen && <ContactModal c={c} theme={theme} onClose={() => setContactOpen(false)} />}
+            <AnimatePresence>
+                {contactOpen && <ContactModal c={c} theme={theme} onClose={() => setContactOpen(false)} />}
+            </AnimatePresence>
 
             <SurfLoader isLoading={appLoading} onExited={() => setRevealed(true)} />
         </div>

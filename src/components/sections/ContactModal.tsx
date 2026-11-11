@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { type Colors, mono, serif } from "../../theme";
 
 interface ContactModalProps {
@@ -12,9 +13,17 @@ const SOCIALS = [
     { label: "Scholar",  href: "https://scholar.google.com/citations?user=CpPKPnkAAAAJ&hl=en" },
 ] as const;
 
+// Rises from the bottom of the screen like a page coming up from the seabed;
+// rendered inside <AnimatePresence> so it sinks back down on close.
 const ContactModal = ({ c, theme, onClose }: ContactModalProps) => (
-    <div
+    <motion.div
+        role="dialog"
+        aria-modal="true"
         onClick={onClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.35 }}
         style={{
             position: "fixed", inset: 0, zIndex: 200,
             background: "rgba(0,0,0,0.6)",
@@ -23,8 +32,12 @@ const ContactModal = ({ c, theme, onClose }: ContactModalProps) => (
             padding: "24px",
         }}
     >
-        <div
+        <motion.div
             onClick={(e) => e.stopPropagation()}
+            initial={{ y: "100vh" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100vh" }}
+            transition={{ type: "spring", stiffness: 60, damping: 15 }}
             style={{
                 background: theme === "dark" ? "#1a1612" : "#ffffff",
                 border: `1px solid ${c.border}`,
@@ -80,8 +93,8 @@ const ContactModal = ({ c, theme, onClose }: ContactModalProps) => (
                     </a>
                 ))}
             </div>
-        </div>
-    </div>
+        </motion.div>
+    </motion.div>
 );
 
 export default ContactModal;
